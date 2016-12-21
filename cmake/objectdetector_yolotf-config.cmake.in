@@ -1,0 +1,54 @@
+# ObjectDetector_YOLOtf CMake config file
+#
+# This file sets the following variables:
+# ObjectDetector_YOLOtf_FOUND - Always TRUE.
+# ObjectDetector_YOLOtf_INCLUDE_DIRS - Directories containing the ObjectDetector_YOLOtf include files.
+# ObjectDetector_YOLOtf_IDL_DIRS - Directories containing the ObjectDetector_YOLOtf IDL files.
+# ObjectDetector_YOLOtf_LIBRARIES - Libraries needed to use ObjectDetector_YOLOtf.
+# ObjectDetector_YOLOtf_DEFINITIONS - Compiler flags for ObjectDetector_YOLOtf.
+# ObjectDetector_YOLOtf_VERSION - The version of ObjectDetector_YOLOtf found.
+# ObjectDetector_YOLOtf_VERSION_MAJOR - The major version of ObjectDetector_YOLOtf found.
+# ObjectDetector_YOLOtf_VERSION_MINOR - The minor version of ObjectDetector_YOLOtf found.
+# ObjectDetector_YOLOtf_VERSION_REVISION - The revision version of ObjectDetector_YOLOtf found.
+# ObjectDetector_YOLOtf_VERSION_CANDIDATE - The candidate version of ObjectDetector_YOLOtf found.
+
+message(STATUS "Found ObjectDetector_YOLOtf-@PROJECT_VERSION@")
+set(ObjectDetector_YOLOtf_FOUND TRUE)
+
+find_package(<dependency> REQUIRED)
+
+#set(ObjectDetector_YOLOtf_INCLUDE_DIRS
+#    "@CMAKE_INSTALL_PREFIX@/include/@PROJECT_NAME_LOWER@-@PROJECT_VERSION_MAJOR@"
+#    ${<dependency>_INCLUDE_DIRS}
+#    )
+#
+#set(ObjectDetector_YOLOtf_IDL_DIRS
+#    "@CMAKE_INSTALL_PREFIX@/include/@PROJECT_NAME_LOWER@-@PROJECT_VERSION_MAJOR@/idl")
+set(ObjectDetector_YOLOtf_INCLUDE_DIRS
+    "@CMAKE_INSTALL_PREFIX@/include/@CPACK_PACKAGE_FILE_NAME@"
+    ${<dependency>_INCLUDE_DIRS}
+    )
+set(ObjectDetector_YOLOtf_IDL_DIRS
+    "@CMAKE_INSTALL_PREFIX@/include/@CPACK_PACKAGE_FILE_NAME@/idl")
+
+
+if(WIN32)
+    set(ObjectDetector_YOLOtf_LIBRARIES
+        "@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@@PROJECT_NAME_LOWER@@CMAKE_STATIC_LIBRARY_SUFFIX@"
+        ${<dependency>_LIBRARIES}
+        )
+else(WIN32)
+    set(ObjectDetector_YOLOtf_LIBRARIES
+        "@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@@PROJECT_NAME_LOWER@@CMAKE_SHARED_LIBRARY_SUFFIX@"
+        ${<dependency>_LIBRARIES}
+        )
+endif(WIN32)
+
+set(ObjectDetector_YOLOtf_DEFINITIONS ${<dependency>_DEFINITIONS})
+
+set(ObjectDetector_YOLOtf_VERSION @PROJECT_VERSION@)
+set(ObjectDetector_YOLOtf_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
+set(ObjectDetector_YOLOtf_VERSION_MINOR @PROJECT_VERSION_MINOR@)
+set(ObjectDetector_YOLOtf_VERSION_REVISION @PROJECT_VERSION_REVISION@)
+set(ObjectDetector_YOLOtf_VERSION_CANDIDATE @PROJECT_VERSION_CANDIDATE@)
+
