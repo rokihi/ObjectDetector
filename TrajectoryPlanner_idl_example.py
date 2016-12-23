@@ -22,6 +22,7 @@ sys.path.append(".")
 #import OpenRTM_aist
 
 import ExtendedDataTypes_idl
+
 #from ExtendedDataTypes_idl import Pose3D, Orientation3D
 
 import numpy
@@ -43,13 +44,6 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         self.RTComp.test()
         
         #yolo= YOLO_small_tf.YOLO_TF()
-    
-        yolo.disp_console = True
-        yolo.imshow = True
-        yolo.tofile_img = "RTC_result_img.jpg"
-        yolo.tofile_txt = "RTC_result_txt.txt"
-        yolo.filewrite_img = True
-        yolo.filewrite_txt = True 
         
         
     def __init__(self):
@@ -60,7 +54,16 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         
         self.geometry=(0,0,0, 0,0,0, 0,0,0)
         
-        self.objInfo=('',0,0,0,0,0,0)
+        self.objectID=''
+        self.pose=(0,0,0, 0,0,0)
+        self.objInfo=Manipulation.ObjectInfo(self.objectID,self.pose)
+        
+        yolo.disp_console = True
+        yolo.imshow = True
+        yolo.tofile_img = "RTC_result_img.jpg"
+        yolo.tofile_txt = "RTC_result_txt.txt"
+        yolo.filewrite_img = True
+        yolo.filewrite_txt = True 
         
         pass
 
@@ -70,12 +73,12 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # *** Implement me
         # Must return: objInfo
         print 'objectID:'+ objectID.name
+        self.objInfo.objectID=objectID.name
         print self.objInfo
         
         cvimage = numpy.fromstring( self.RTComp._d_image.pixels, dtype=numpy.uint8 ).reshape( self.RTComp._d_image.height, self.RTComp._d_image.width, -1 )
         yolo.detect_from_cvmat(cvimage)
-        
-        
+
         for i in range(len(yolo.result)):
             x = int(yolo.result[i][1])
             y = int(yolo.result[i][2])
@@ -83,21 +86,19 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             w = int(yolo.result[i][3])
             h = int(yolo.result[i][4])
             
-            print '    ID : ' + yolo.result[i][0] + ' , [x,y,w,h]=[' + str(x) + ',' + str(y) + ',' + str(w) + ',' + str(h)+'], Confidence = ' + str(yolo.result[i][5])
+            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ' , [x,y,w,h]=[' + str(x) + ',' + str(y) + ',' + str(w) + ',' + str(h)+'], Confidence = ' + str(yolo.result[i][5])
             
-            self.RTComp._d_result.data.append(str(yolo.result[i][0]))
-            
-            
+            self.RTComp._d_result.data.append(str(yolo.result[i][0]))            
             for j in range (1, 4):
-
                 self.RTComp._d_result.data.append(str(int(yolo.result[i][j])))
             
             if yolo.result[i][0]==objectID.name:
                 
                 #objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
-                
+
                 self.objInfo.pose =(x,y,z,0,0,0)
-                print 'Picking Object : ' + self.objInfo
+                print 'Picking Object : ' + str(self.objInfo)
+                break
         
         return self.objInfo
 
