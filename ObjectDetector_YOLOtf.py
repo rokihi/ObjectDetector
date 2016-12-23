@@ -233,7 +233,7 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 # 				print '	ID : ' + yolo.result[i][0] + ' , [x,y,w,h]=[' + str(x) + ',' + str(y) + ',' + str(w) + ',' + str(h)+'], Confidence = ' + str(yolo.result[i][5])
 #   				
 #   				for j in range (0, 4):
-# 				  	self._d_resultString.data.append(str(int(yolo.result[i][j])))
+# 				  	self._d_result.data.append(str(int(yolo.result[i][j])))
 				
 # 				print self._d_result.data
 

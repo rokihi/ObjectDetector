@@ -20,7 +20,10 @@ sys.path.append(".")
 # Import RTM module
 #import RTC
 #import OpenRTM_aist
+
+import ExtendedDataTypes_idl
 #from ExtendedDataTypes_idl import Pose3D, Orientation3D
+
 import numpy
 import cv2
 
@@ -33,10 +36,11 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
     @class ObjectDetectionService_i
     Example class implementing IDL interface Manipulation.ObjectDetectionService
     """
+    
     def setComp(self, comp):
         
-        RTC = comp
-        RTC.test()
+        self.RTComp = comp
+        self.RTComp.test()
         
         #yolo= YOLO_small_tf.YOLO_TF()
     
@@ -44,15 +48,20 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         yolo.imshow = True
         yolo.tofile_img = "RTC_result_img.jpg"
         yolo.tofile_txt = "RTC_result_txt.txt"
-        yolo.filewrite_img = True 
+        yolo.filewrite_img = True
         yolo.filewrite_txt = True 
-         
+        
+        
     def __init__(self):
         """
         @brief standard constructor
         Initialise member variables here
         """
+        
         self.geometry=(0,0,0, 0,0,0, 0,0,0)
+        
+        self.objInfo=('',0,0,0,0,0,0)
+        
         pass
 
     # void detectObject(in ObjectIdentifier objectID, out ObjectInfo objInfo)
@@ -61,8 +70,9 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # *** Implement me
         # Must return: objInfo
         print 'objectID:'+ objectID.name
+        print self.objInfo
         
-        cvimage = numpy.fromstring( RTC._d_image.pixels, dtype=numpy.uint8 ).reshape( RTC._d_image.height, RTC._d_image.width, -1 )
+        cvimage = numpy.fromstring( self.RTComp._d_image.pixels, dtype=numpy.uint8 ).reshape( self.RTComp._d_image.height, self.RTComp._d_image.width, -1 )
         yolo.detect_from_cvmat(cvimage)
         
         
@@ -75,15 +85,21 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             
             print '    ID : ' + yolo.result[i][0] + ' , [x,y,w,h]=[' + str(x) + ',' + str(y) + ',' + str(w) + ',' + str(h)+'], Confidence = ' + str(yolo.result[i][5])
             
-            for j in range (0, 4):
-                RTC._d_resultString.data.append(str(int(yolo.result[i][j])))
+            self.RTComp._d_result.data.append(str(yolo.result[i][0]))
+            
+            
+            for j in range (1, 4):
+
+                self.RTComp._d_result.data.append(str(int(yolo.result[i][j])))
             
             if yolo.result[i][0]==objectID.name:
                 
-                objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
-                print 'Picking Object : ' + objInfo
+                #objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
+                
+                self.objInfo.pose =(x,y,z,0,0,0)
+                print 'Picking Object : ' + self.objInfo
         
-        return objInfo        
+        return self.objInfo
 
     # void setGeometry(in RTC::Geometry3D geometry)
     def setGeometry(self, geometry):
