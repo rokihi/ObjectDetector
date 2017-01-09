@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # -*- Python -*-
+from mercurial.revset import depth
 
 """
  @file TrajectoryPlanner_idl_examplefile.py
@@ -62,6 +63,24 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         
         pass
 
+#     def convertImgToCvMat(self,srcImg):
+#         
+#         return cvimage
+    
+    def getDepth(self,x,y):
+        min_distance=0.2
+        max_distance=2.0
+        
+        target= x*self.RTComp._d_RGBDimage.data.depthImage.width + y
+        depth = self.RTComp._d_RGBDimage.data.depthImage.raw_data[target]
+        
+        if depth < min_distance:
+            depth=min_distance
+        elif depth > max_distance:
+            depth=max_distance
+            
+        return depth
+    
     # void detectObject(in ObjectIdentifier objectID, out ObjectInfo objInfo)
     def detectObject(self, objectID):
         #raise CORBA.NO_IMPLEMENT(0, CORBA.COMPLETED_NO)
@@ -71,17 +90,28 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         self.objInfo.objectID=objectID.name
         print self.objInfo
         
-        cvimage = numpy.fromstring( self.RTComp._d_image.pixels, dtype=numpy.uint8 ).reshape( self.RTComp._d_image.height, self.RTComp._d_image.width, -1 )
+        
+        if self.RTComp.image_type=='RTCCameraImage':
+            cvimage = numpy.fromstring( self.RTComp._d_image.pixels, dtype=numpy.uint8 ).reshape( self.RTComp._d_image.height, self.RTComp._d_image.width, -1 )
+        
+        elif self.RTComp.image_type=='RGBDCameraImage':
+            imgw=self.RTComp._d_RGBDimage.data.depthImage.width
+            imgh=self.RTComp._d_RGBDimage.data.depthImage.hight
+            cvimage = numpy.fromstring( self.RTComp._d_RGBDimage.ImageData.raw_data, dtype=numpy.uint8 ).reshape( imgh, imgw, -1 )
+            
         yolo.detect_from_cvmat(cvimage)
 
+
         for i in range(len(yolo.result)):
-            x = int(yolo.result[i][1])
-            y = int(yolo.result[i][2])
-            z = 0 #depthdata 
-            w = int(yolo.result[i][3])
-            h = int(yolo.result[i][4])
+            w = yolo.result[i][3]
+            h = yolo.result[i][4]
+            x = (yolo.result[i][1]-w/2)*self.RTComp._scale_x
+            y = (yolo.result[i][2]+h/2)*self.RTComp._scale_y
+            z = 0
+            if self.RTComp.image_type=='RGBDCameraImage':
+                z = self.getDepth(x,y)*self.RTComp._scale_z
             
-            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ' , [x,y,w,h]=[' + str(x) + ',' + str(y) + ',' + str(w) + ',' + str(h)+'], Confidence = ' + str(yolo.result[i][5])
+            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ' , [x,y,z,w,h]=[' + str(int(x)) + ',' + str(int(y)) +','+ str(int(z))+ ',' + str(int(w)) + ',' + str(int(h))+'], Confidence = ' + str(yolo.result[i][5])
             
             self.RTComp._d_result.data.append(str(yolo.result[i][0]))            
             for j in range (1, 4):

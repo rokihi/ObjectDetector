@@ -83,7 +83,7 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		"""
 		self._RGBDimageIn = OpenRTM_aist.InPort("RGBDimage", self._d_RGBDimage)
 		result_arg = [None] * ((len(RTC._d_TimedStringSeq) - 4) / 2)
-		self._d_result = RTC.TimedStringSeq(*result_arg)
+		self._d_result = RTC.TimedStringSeq(RTC.Time(0,0),[])
 		"""
 		"""
 		self._resultStringOut = OpenRTM_aist.OutPort("resultString", self._d_result)
@@ -121,7 +121,7 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		
 		# </rtc-template>
 
-
+		self.image_type = 'RGBDCameraImage'
 		 
 	##
 	#
@@ -242,9 +242,10 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		#
 	def onExecute(self, ec_id):
 		if self._imageIn.isNew():
+			self.image_type='RTCCameraImage'
 			self._d_image = self._imageIn.read()
 			self._d_result.data=[]
- 			
+ 			self.datatype
 			print self._d_image.height, self._d_image.width, self._d_image.bpp
  
 			#cvimage = numpy.fromstring( self._d_image.pixels, dtype=numpy.uint8 ).reshape( self._d_image.height, self._d_image.width, -1 )
@@ -264,7 +265,10 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 # 				  	self._d_result.data.append(str(int(yolo.result[i][j])))
 				
 # 				print self._d_result.data
-
+		if self._RGBDimageIn.isNew():
+			self._d_RGBDimage = self._RGBDimageIn.read()
+			self._d_result.data=[]
+			
 		return RTC.RTC_OK
 	
 	#	##
