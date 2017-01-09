@@ -98,6 +98,9 @@ ObjectDetector_YOLOtfは ``ObjectDetector_YOLOtfComp`` を実行（ ``${prefix}/
 ================ ================== ================ ====
 パラメータ       データ型           デフォルト値     意味
 ================ ================== ================ ====
+scale_x          double             1.0              
+scale_y          double             1.0              
+scale_z          double             1.0              
 ================ ================== ================ ====
 
 ポート
@@ -109,6 +112,7 @@ ObjectDetector_YOLOtfは ``ObjectDetector_YOLOtfComp`` を実行（ ``${prefix}/
 ポート名        ポート型    データ型                       意味
 =============== =========== ============================== ====
 image           InPort      RTC::CameraImage               
+RGBDimage       InPort      RGBDCamera::TimedRGBDCameraImage 
 resultString    OutPort     RTC::TimedStringSeq            
 ObjectDetectionService ServicePort Manipulation::ObjectDetectionService 
 =============== =========== ============================== ====

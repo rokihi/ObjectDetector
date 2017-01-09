@@ -20,9 +20,7 @@ sys.path.append(".")
 # Import RTM module
 #import RTC
 #import OpenRTM_aist
-
 import ExtendedDataTypes_idl
-
 #from ExtendedDataTypes_idl import Pose3D, Orientation3D
 
 import numpy
@@ -37,21 +35,18 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
     @class ObjectDetectionService_i
     Example class implementing IDL interface Manipulation.ObjectDetectionService
     """
-    
     def setComp(self, comp):
         
         self.RTComp = comp
-        self.RTComp.test()
+        #self.RTComp.test()
         
         #yolo= YOLO_small_tf.YOLO_TF()
-        
-        
+
     def __init__(self):
         """
         @brief standard constructor
         Initialise member variables here
         """
-        
         self.geometry=(0,0,0, 0,0,0, 0,0,0)
         
         self.objectID=''
@@ -109,7 +104,8 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # Must return: None
         self.geometry = geometry 
 
-# 
+
+
 # class KinematicsSolverService_i (Manipulation__POA.KinematicsSolverService):
 #     """
 #     @class KinematicsSolverService_i
