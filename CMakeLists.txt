@@ -11,9 +11,9 @@ set(LINUX_PACKAGE_GENERATOR "DEB")
 
 # component settings
 set(RTC_NAME "${PROJECT_NAME}")
-set(RTC_VERSION "1.0.0")
+set(RTC_VERSION "1.1.0")
 set(RTC_VERSION_MAJOR "1")
-set(RTC_VERSION_MINOR "0")
+set(RTC_VERSION_MINOR "1")
 set(RTC_VERSION_PATCH "0")
 set(RTC_LANG "python")
 set(RTC_DESCRIPTION "YOLO_tensorflow")
@@ -25,6 +25,9 @@ set(PACKAGE_VERSION "${RTC_VERSION_MAJOR}.${RTC_VERSION_MINOR}.${RTC_VERSION_PAT
 
 set(IDL_FILES ""
               TrajectoryPlanner.idl
+              InterfaceDataTypes.idl
+              DepthCamera.idl
+              BasicDataType.idl
 )
 
 set(EXEC_FILES ""

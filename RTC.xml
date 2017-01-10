@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<rtc:RtcProfile rtc:version="0.2" rtc:id="RTC:ota:ObjectRecognition:ObjectDetector_YOLOtf:1.0.0" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <rtc:BasicInfo xsi:type="rtcExt:basic_info_ext" rtcExt:saveProject="ObjectDetector" rtc:updateDate="2016-12-06T16:33:53+09:00" rtc:creationDate="2016-12-06T16:33:04+09:00" rtc:version="1.0.0" rtc:vendor="ota" rtc:maxInstances="1" rtc:executionType="PeriodicExecutionContext" rtc:executionRate="1000.0" rtc:description="YOLO_tensorflow" rtc:category="ObjectRecognition" rtc:componentKind="DataFlowComponent" rtc:activityType="PERIODIC" rtc:componentType="STATIC" rtc:name="ObjectDetector_YOLOtf">
+<rtc:RtcProfile rtc:version="0.2" rtc:id="RTC:ota:ObjectRecognition:ObjectDetector_YOLOtf:1.1.0" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <rtc:BasicInfo xsi:type="rtcExt:basic_info_ext" rtcExt:saveProject="ObjectDetector" rtc:updateDate="2016-12-06T16:33:53+09:00" rtc:creationDate="2016-12-06T16:33:04+09:00" rtc:version="1.1.0" rtc:vendor="ota" rtc:maxInstances="1" rtc:executionType="PeriodicExecutionContext" rtc:executionRate="1000.0" rtc:description="YOLO_tensorflow" rtc:category="ObjectRecognition" rtc:componentKind="DataFlowComponent" rtc:activityType="PERIODIC" rtc:componentType="STATIC" rtc:name="ObjectDetector_YOLOtf">
+        <rtcExt:VersionUpLogs></rtcExt:VersionUpLogs>
         <rtcExt:VersionUpLogs></rtcExt:VersionUpLogs>
         <rtcExt:VersionUpLogs></rtcExt:VersionUpLogs>
         <rtcExt:VersionUpLogs></rtcExt:VersionUpLogs>
@@ -22,7 +23,19 @@
         <rtc:OnAction xsi:type="rtcDoc:action_status_doc" rtc:implemented="false"/>
         <rtc:OnModeChanged xsi:type="rtcDoc:action_status_doc" rtc:implemented="false"/>
     </rtc:Actions>
+    <rtc:ConfigurationSet>
+        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="" rtc:unit="" rtc:defaultValue="1.0" rtc:type="double" rtc:name="scale_x">
+            <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
+        </rtc:Configuration>
+        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="" rtc:unit="" rtc:defaultValue="1.0" rtc:type="double" rtc:name="scale_y">
+            <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
+        </rtc:Configuration>
+        <rtc:Configuration xsi:type="rtcExt:configuration_ext" rtcExt:variableName="" rtc:unit="" rtc:defaultValue="1.0" rtc:type="double" rtc:name="scale_z">
+            <rtcExt:Properties rtcExt:value="text" rtcExt:name="__widget__"/>
+        </rtc:Configuration>
+    </rtc:ConfigurationSet>
     <rtc:DataPorts xsi:type="rtcExt:dataport_ext" rtcExt:position="LEFT" rtcExt:variableName="image" rtc:unit="" rtc:subscriptionType="" rtc:dataflowType="" rtc:interfaceType="" rtc:idlFile="" rtc:type="RTC::CameraImage" rtc:name="image" rtc:portType="DataInPort"/>
+    <rtc:DataPorts xsi:type="rtcExt:dataport_ext" rtcExt:position="LEFT" rtcExt:variableName="RGBDimage" rtc:unit="" rtc:subscriptionType="" rtc:dataflowType="" rtc:interfaceType="" rtc:idlFile="" rtc:type="RGBDCamera::TimedRGBDCameraImage" rtc:name="RGBDimage" rtc:portType="DataInPort"/>
     <rtc:DataPorts xsi:type="rtcExt:dataport_ext" rtcExt:position="RIGHT" rtcExt:variableName="result" rtc:unit="" rtc:subscriptionType="" rtc:dataflowType="" rtc:interfaceType="" rtc:idlFile="" rtc:type="RTC::TimedStringSeq" rtc:name="resultString" rtc:portType="DataOutPort"/>
     <rtc:ServicePorts xsi:type="rtcExt:serviceport_ext" rtcExt:position="TOP" rtc:name="ObjectDetection">
         <rtc:ServiceInterface xsi:type="rtcExt:serviceinterface_ext" rtcExt:variableName="detectObjProvider" rtc:path="/home/ogata/workspace/rtm/idl" rtc:type="Manipulation::ObjectDetectionService" rtc:idlFile="/home/ogata/workspace/rtm/idl/TrajectoryPlanner.idl" rtc:instanceName="detectObjProvider" rtc:direction="Provided" rtc:name="ObjectDetectionService"/>

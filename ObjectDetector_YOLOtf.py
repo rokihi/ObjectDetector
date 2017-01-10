@@ -18,6 +18,7 @@ import RTC
 import OpenRTM_aist
 
 import TrajectoryPlanner_idl
+import RGBDCamera
 
 # Import Service implementation class
 # <rtc-template block="service_impl">
@@ -29,25 +30,31 @@ from TrajectoryPlanner_idl_example import *
 # <rtc-template block="consumer_import">
 # </rtc-template>
 
-# import numpy
-# import cv2
-# import cv2.cv as cv
-#import YOLO_small_tf 
-#yolo = YOLO_small_tf.YOLO_TF()
-
 
 # This module's spesification
 # <rtc-template block="module_spec">
 objectdetector_yolotf_spec = ["implementation_id", "ObjectDetector_YOLOtf", 
 		 "type_name",         "ObjectDetector_YOLOtf", 
 		 "description",       "YOLO_tensorflow", 
-		 "version",           "1.0.0", 
+		 "version",           "1.1.0", 
 		 "vendor",            "ota", 
 		 "category",          "ObjectRecognition", 
 		 "activity_type",     "STATIC", 
 		 "max_instance",      "1", 
 		 "language",          "Python", 
 		 "lang_type",         "SCRIPT",
+		 "conf.default.scale_x", "1.0",
+		 "conf.default.scale_y", "1.0",
+		 "conf.default.scale_z", "1.0",
+
+		 "conf.__widget__.scale_x", "text",
+		 "conf.__widget__.scale_y", "text",
+		 "conf.__widget__.scale_z", "text",
+
+         "conf.__type__.scale_x", "double",
+         "conf.__type__.scale_y", "double",
+         "conf.__type__.scale_z", "double",
+
 		 ""]
 # </rtc-template>
 
@@ -70,6 +77,11 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		"""
 		"""
 		self._imageIn = OpenRTM_aist.InPort("image", self._d_image)
+		RGBDimage_arg = [None] * ((len(RGBDCamera._d_TimedRGBDCameraImage) - 4) / 2)
+		self._d_RGBDimage = RGBDCamera.TimedRGBDCameraImage(*RGBDimage_arg)
+		"""
+		"""
+		self._RGBDimageIn = OpenRTM_aist.InPort("RGBDimage", self._d_RGBDimage)
 		result_arg = [None] * ((len(RTC._d_TimedStringSeq) - 4) / 2)
 		self._d_result = RTC.TimedStringSeq(RTC.Time(0,0),[])
 		"""
@@ -84,19 +96,32 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		"""
 		self._detectObjProvider = ObjectDetectionService_i()
 		
-		yolo.disp_console = True
-		yolo.imshow = True
-		yolo.tofile_img = "RTC_result_img.jpg"
-		yolo.tofile_txt = "RTC_result_txt.txt"
-		yolo.filewrite_img = True 
-		yolo.filewrite_txt = True 
+
 
 		# initialize of configuration-data.
 		# <rtc-template block="init_conf_param">
+		"""
+		
+		 - Name:  scale_x
+		 - DefaultValue: 1.0
+		"""
+		self._scale_x = [1.0]
+		"""
+		
+		 - Name:  scale_y
+		 - DefaultValue: 1.0
+		"""
+		self._scale_y = [1.0]
+		"""
+		
+		 - Name:  scale_z
+		 - DefaultValue: 1.0
+		"""
+		self._scale_z = [1.0]
 		
 		# </rtc-template>
 
-
+		self.image_type = 'RGBDCameraImage'
 		 
 	##
 	#
@@ -108,9 +133,13 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 	#
 	def onInitialize(self):
 		# Bind variables and configuration variable
+		self.bindParameter("scale_x", self._scale_x, "1.0")
+		self.bindParameter("scale_y", self._scale_y, "1.0")
+		self.bindParameter("scale_z", self._scale_z, "1.0")
 		
 		# Set InPort buffers
 		self.addInPort("image",self._imageIn)
+		self.addInPort("RGBDimage",self._RGBDimageIn)
 		
 		# Set OutPort buffers
 		self.addOutPort("resultString",self._resultStringOut)
@@ -175,14 +204,13 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		# @return RTC::ReturnCode_t
 		#
 		#
-	def test(self):
-		print "test"
-		
 	def onActivated(self, ec_id):
+		
 		self._d_result.data=[]
 		self._detectObjProvider.setComp(self)
 #		print('CreateWindow')
 # 		cv2.namedWindow("ReceiveImage", cv.CV_WINDOW_AUTOSIZE)
+
 		return RTC.RTC_OK
 	
 		##
@@ -199,7 +227,7 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		
 # 		print('DestoryWindow ')
 # 		cv2.destroyAllWindows()
-		
+	
 		return RTC.RTC_OK
 	
 		##
@@ -214,10 +242,11 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		#
 	def onExecute(self, ec_id):
 		if self._imageIn.isNew():
+			self.image_type='RTCCameraImage'
 			self._d_image = self._imageIn.read()
 			self._d_result.data=[]
  			
-			print self._d_image.height, self._d_image.width, self._d_image.bpp
+			#print self._d_image.height, self._d_image.width, self._d_image.bpp
  
 			#cvimage = numpy.fromstring( self._d_image.pixels, dtype=numpy.uint8 ).reshape( self._d_image.height, self._d_image.width, -1 )
 # 			#cv2.imshow('cameraimage',cvimage)
@@ -236,7 +265,11 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 # 				  	self._d_result.data.append(str(int(yolo.result[i][j])))
 				
 # 				print self._d_result.data
-
+		if self._RGBDimageIn.isNew():
+			self.image_type='RGBDCameraImage'
+			self._d_RGBDimage = self._RGBDimageIn.read()
+			self._d_result.data=[]
+			
 		return RTC.RTC_OK
 	
 	#	##
