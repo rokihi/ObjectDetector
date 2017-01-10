@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # -*- Python -*-
 from mercurial.revset import depth
+import imghdr
+from chainer.functions.array import depth2space
 
 """
  @file TrajectoryPlanner_idl_examplefile.py
@@ -24,7 +26,7 @@ sys.path.append(".")
 import ExtendedDataTypes_idl
 #from ExtendedDataTypes_idl import Pose3D, Orientation3D
 
-import numpy
+import numpy as np
 import cv2
 
 import ObjectDetector_YOLOtf 
@@ -48,11 +50,11 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         @brief standard constructor
         Initialise member variables here
         """
-        self.geometry=(0,0,0, 0,0,0, 0,0,0)
+        self.geometry = (0, 0, 0, 0, 0, 0, 0, 0, 0)
         
-        self.objectID=''
-        self.pose=(0,0,0, 0,0,0)
-        self.objInfo=Manipulation.ObjectInfo(self.objectID,self.pose)
+        self.objectID = ''
+        self.pose = (0, 0, 0, 0, 0, 0)
+        self.objInfo = Manipulation.ObjectInfo(self.objectID, self.pose)
         
         yolo.disp_console = True
         yolo.imshow = True
@@ -67,37 +69,57 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
 #         
 #         return cvimage
     
-    def getDepth(self,x,y):
-        min_distance=0.2
-        max_distance=2.0
+    def getDepth(self, x, y, cameraimg_width, depthimg_width):
+        min_distance = 0.2
+        max_distance = 2.0
         
-        target= x*self.RTComp._d_RGBDimage.data.depthImage.width + y
-        depth = self.RTComp._d_RGBDimage.data.depthImage.raw_data[target]
+        ratio = depthimg_width * 1.0 / cameraimg_width
+        
+        position = int(x * ratio) * depthimg_width + int(y * ratio)
+        
+        avg_scope = 15
+        
+        depth_around = np.array(self.RTComp._d_RGBDimage.data.depthImage.raw_data[position - avg_scope - depthimg_width:position + avg_scope+1 - depthimg_width] + 
+                        self.RTComp._d_RGBDimage.data.depthImage.raw_data[position - avg_scope : position + avg_scope+1] + 
+                        self.RTComp._d_RGBDimage.data.depthImage.raw_data[position - avg_scope + depthimg_width:position + avg_scope+1 + depthimg_width])
+        depth = depth_around.sum() / np.nonzero(depth_around)[0].size  # average without 0 
         
         if depth < min_distance:
-            depth=min_distance
+            depth = min_distance
         elif depth > max_distance:
-            depth=max_distance
+            depth = max_distance
             
-        return depth
+        return depth * 1000 # [mm]
     
     # void detectObject(in ObjectIdentifier objectID, out ObjectInfo objInfo)
     def detectObject(self, objectID):
         #raise CORBA.NO_IMPLEMENT(0, CORBA.COMPLETED_NO)
         # *** Implement me
         # Must return: objInfo
-        print 'objectID:'+ objectID.name
-        self.objInfo.objectID=objectID.name
+        #print 'objectID:' + objectID.name
+        self.objInfo.objectID = objectID.name
         print self.objInfo
+
         
+        if self.RTComp.image_type == 'RTCCameraImage':
+            print 'format: ' + self.RTComp._d_image.format
+            cvimage = np.fromstring(self.RTComp._d_image.pixels, dtype=np.uint8).reshape(self.RTComp._d_image.height, self.RTComp._d_image.width, -1)
         
-        if self.RTComp.image_type=='RTCCameraImage':
-            cvimage = numpy.fromstring( self.RTComp._d_image.pixels, dtype=numpy.uint8 ).reshape( self.RTComp._d_image.height, self.RTComp._d_image.width, -1 )
-        
-        elif self.RTComp.image_type=='RGBDCameraImage':
-            imgw=self.RTComp._d_RGBDimage.data.depthImage.width
-            imgh=self.RTComp._d_RGBDimage.data.depthImage.hight
-            cvimage = numpy.fromstring( self.RTComp._d_RGBDimage.ImageData.raw_data, dtype=numpy.uint8 ).reshape( imgh, imgw, -1 )
+        elif self.RTComp.image_type == 'RGBDCameraImage':
+            imgw = self.RTComp._d_RGBDimage.data.cameraImage.image.width
+            imgh = self.RTComp._d_RGBDimage.data.cameraImage.image.height
+            imgformat = self.RTComp._d_RGBDimage.data.cameraImage.image.format
+            dimgw = self.RTComp._d_RGBDimage.data.depthImage.width
+            dimgh = self.RTComp._d_RGBDimage.data.depthImage.height
+            
+#             print 'imgw,h: ' + str(imgw) + ', ' + str(imgh)
+#             print 'dimgw,h: ' + str(dimgw) + ', ' + str(dimgh)
+            print 'Color Format: ' + str(imgformat)
+            
+            if str(imgformat) == 'CF_RGB':
+                cvimage = np.fromstring(self.RTComp._d_RGBDimage.data.cameraImage.image.raw_data, dtype=np.uint8).reshape(imgh, imgw, -1)
+            else:
+                print "error: only CF_RGB is available."
             
         yolo.detect_from_cvmat(cvimage)
 
@@ -105,23 +127,28 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         for i in range(len(yolo.result)):
             w = yolo.result[i][3]
             h = yolo.result[i][4]
-            x = (yolo.result[i][1]-w/2)*self.RTComp._scale_x
-            y = (yolo.result[i][2]+h/2)*self.RTComp._scale_y
+            x = yolo.result[i][1]
+            y = yolo.result[i][2]
             z = 0
-            if self.RTComp.image_type=='RGBDCameraImage':
-                z = self.getDepth(x,y)*self.RTComp._scale_z
+            if self.RTComp.image_type == 'RGBDCameraImage':
+                z = self.getDepth(x, y, imgw, dimgw)
             
-            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ' , [x,y,z,w,h]=[' + str(int(x)) + ',' + str(int(y)) +','+ str(int(z))+ ',' + str(int(w)) + ',' + str(int(h))+'], Confidence = ' + str(yolo.result[i][5])
+            x = x * self.RTComp._scale_x[0]
+            y = y * self.RTComp._scale_y[0]
+            z = z * self.RTComp._scale_z[0]
+            
+            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ' , [x,y,z,w,h]=[' + str(int(x)) + ',' + str(int(y)) + ',' + str(int(z)) + \
+                 ',' + str(int(w)) + ',' + str(int(h)) + '], Confidence = ' + str(yolo.result[i][5])
             
             self.RTComp._d_result.data.append(str(yolo.result[i][0]))            
             for j in range (1, 4):
                 self.RTComp._d_result.data.append(str(int(yolo.result[i][j])))
             
-            if yolo.result[i][0]==objectID.name:
+            if yolo.result[i][0] == objectID.name:
                 
-                #objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
+                # objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
 
-                self.objInfo.pose =(x,y,z,0,0,0)
+                self.objInfo.pose = (x, y, z, 0, 0, 0)
                 print 'Picking Object : ' + str(self.objInfo)
                 break
         
