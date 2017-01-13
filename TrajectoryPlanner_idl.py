@@ -27,6 +27,30 @@ _0_Manipulation = omniORB.openModule("Manipulation", r"idl/TrajectoryPlanner.idl
 _0_Manipulation__POA = omniORB.openModule("Manipulation__POA", r"idl/TrajectoryPlanner.idl")
 
 
+# typedef ... Vector3
+class Vector3:
+    _NP_RepositoryId = "IDL:Manipulation/Vector3:1.0"
+    def __init__(self, *args, **kw):
+        raise RuntimeError("Cannot construct objects of this type.")
+_0_Manipulation.Vector3 = Vector3
+_0_Manipulation._d_Vector3  = (omniORB.tcInternal.tv_array, omniORB.tcInternal.tv_double, 3)
+_0_Manipulation._ad_Vector3 = (omniORB.tcInternal.tv_alias, Vector3._NP_RepositoryId, "Vector3", (omniORB.tcInternal.tv_array, omniORB.tcInternal.tv_double, 3))
+_0_Manipulation._tc_Vector3 = omniORB.tcInternal.createTypeCode(_0_Manipulation._ad_Vector3)
+omniORB.registerType(Vector3._NP_RepositoryId, _0_Manipulation._ad_Vector3, _0_Manipulation._tc_Vector3)
+del Vector3
+
+# typedef ... Matrix34
+class Matrix34:
+    _NP_RepositoryId = "IDL:Manipulation/Matrix34:1.0"
+    def __init__(self, *args, **kw):
+        raise RuntimeError("Cannot construct objects of this type.")
+_0_Manipulation.Matrix34 = Matrix34
+_0_Manipulation._d_Matrix34  = (omniORB.tcInternal.tv_array, (omniORB.tcInternal.tv_array, omniORB.tcInternal.tv_double, 4), 3)
+_0_Manipulation._ad_Matrix34 = (omniORB.tcInternal.tv_alias, Matrix34._NP_RepositoryId, "Matrix34", (omniORB.tcInternal.tv_array, (omniORB.tcInternal.tv_array, omniORB.tcInternal.tv_double, 4), 3))
+_0_Manipulation._tc_Matrix34 = omniORB.tcInternal.createTypeCode(_0_Manipulation._ad_Matrix34)
+omniORB.registerType(Matrix34._NP_RepositoryId, _0_Manipulation._ad_Matrix34, _0_Manipulation._tc_Matrix34)
+del Matrix34
+
 # struct ObjectIdentifier
 _0_Manipulation.ObjectIdentifier = omniORB.newEmptyClass()
 class ObjectIdentifier (omniORB.StructBase):
@@ -56,36 +80,87 @@ _0_Manipulation._tc_ObjectInfo = omniORB.tcInternal.createTypeCode(_0_Manipulati
 omniORB.registerType(ObjectInfo._NP_RepositoryId, _0_Manipulation._d_ObjectInfo, _0_Manipulation._tc_ObjectInfo)
 del ObjectInfo
 
-# struct JointInfo
-_0_Manipulation.JointInfo = omniORB.newEmptyClass()
-class JointInfo (omniORB.StructBase):
-    _NP_RepositoryId = "IDL:Manipulation/JointInfo:1.0"
+# struct JointAngle
+_0_Manipulation.JointAngle = omniORB.newEmptyClass()
+class JointAngle (omniORB.StructBase):
+    _NP_RepositoryId = "IDL:Manipulation/JointAngle:1.0"
 
-    def __init__(self, name, jointAngle, jointDistance, linkLength, linkTwist, maxAngle, minAngle):
+    def __init__(self, data):
+        self.data = data
+
+_0_Manipulation.JointAngle = JointAngle
+_0_Manipulation._d_JointAngle  = (omniORB.tcInternal.tv_struct, JointAngle, JointAngle._NP_RepositoryId, "JointAngle", "data", omniORB.tcInternal.tv_double)
+_0_Manipulation._tc_JointAngle = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_JointAngle)
+omniORB.registerType(JointAngle._NP_RepositoryId, _0_Manipulation._d_JointAngle, _0_Manipulation._tc_JointAngle)
+del JointAngle
+
+# typedef ... JointAngleSeq
+class JointAngleSeq:
+    _NP_RepositoryId = "IDL:Manipulation/JointAngleSeq:1.0"
+    def __init__(self, *args, **kw):
+        raise RuntimeError("Cannot construct objects of this type.")
+_0_Manipulation.JointAngleSeq = JointAngleSeq
+_0_Manipulation._d_JointAngleSeq  = (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/JointAngle:1.0"], 0)
+_0_Manipulation._ad_JointAngleSeq = (omniORB.tcInternal.tv_alias, JointAngleSeq._NP_RepositoryId, "JointAngleSeq", (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/JointAngle:1.0"], 0))
+_0_Manipulation._tc_JointAngleSeq = omniORB.tcInternal.createTypeCode(_0_Manipulation._ad_JointAngleSeq)
+omniORB.registerType(JointAngleSeq._NP_RepositoryId, _0_Manipulation._ad_JointAngleSeq, _0_Manipulation._tc_JointAngleSeq)
+del JointAngleSeq
+
+# struct LimitValue
+_0_Manipulation.LimitValue = omniORB.newEmptyClass()
+class LimitValue (omniORB.StructBase):
+    _NP_RepositoryId = "IDL:Manipulation/LimitValue:1.0"
+
+    def __init__(self, upper, lower):
+        self.upper = upper
+        self.lower = lower
+
+_0_Manipulation.LimitValue = LimitValue
+_0_Manipulation._d_LimitValue  = (omniORB.tcInternal.tv_struct, LimitValue, LimitValue._NP_RepositoryId, "LimitValue", "upper", omniORB.tcInternal.tv_double, "lower", omniORB.tcInternal.tv_double)
+_0_Manipulation._tc_LimitValue = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_LimitValue)
+omniORB.registerType(LimitValue._NP_RepositoryId, _0_Manipulation._d_LimitValue, _0_Manipulation._tc_LimitValue)
+del LimitValue
+
+# enum JOINT_TYPE
+_0_Manipulation.JOINT_ROTATE = omniORB.EnumItem("JOINT_ROTATE", 0)
+_0_Manipulation.JOINT_SLIDE = omniORB.EnumItem("JOINT_SLIDE", 1)
+_0_Manipulation.JOINT_FIXED = omniORB.EnumItem("JOINT_FIXED", 2)
+_0_Manipulation.JOINT_FREE = omniORB.EnumItem("JOINT_FREE", 3)
+_0_Manipulation.JOINT_UNKNOWN = omniORB.EnumItem("JOINT_UNKNOWN", 4)
+_0_Manipulation.JOINT_TYPE = omniORB.Enum("IDL:Manipulation/JOINT_TYPE:1.0", (_0_Manipulation.JOINT_ROTATE, _0_Manipulation.JOINT_SLIDE, _0_Manipulation.JOINT_FIXED, _0_Manipulation.JOINT_FREE, _0_Manipulation.JOINT_UNKNOWN,))
+
+_0_Manipulation._d_JOINT_TYPE  = (omniORB.tcInternal.tv_enum, _0_Manipulation.JOINT_TYPE._NP_RepositoryId, "JOINT_TYPE", _0_Manipulation.JOINT_TYPE._items)
+_0_Manipulation._tc_JOINT_TYPE = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_JOINT_TYPE)
+omniORB.registerType(_0_Manipulation.JOINT_TYPE._NP_RepositoryId, _0_Manipulation._d_JOINT_TYPE, _0_Manipulation._tc_JOINT_TYPE)
+
+# struct JointParameter
+_0_Manipulation.JointParameter = omniORB.newEmptyClass()
+class JointParameter (omniORB.StructBase):
+    _NP_RepositoryId = "IDL:Manipulation/JointParameter:1.0"
+
+    def __init__(self, name, jointType, axis, offset, limit):
         self.name = name
-        self.jointAngle = jointAngle
-        self.jointDistance = jointDistance
-        self.linkLength = linkLength
-        self.linkTwist = linkTwist
-        self.maxAngle = maxAngle
-        self.minAngle = minAngle
+        self.jointType = jointType
+        self.axis = axis
+        self.offset = offset
+        self.limit = limit
 
-_0_Manipulation.JointInfo = JointInfo
-_0_Manipulation._d_JointInfo  = (omniORB.tcInternal.tv_struct, JointInfo, JointInfo._NP_RepositoryId, "JointInfo", "name", (omniORB.tcInternal.tv_string,0), "jointAngle", omniORB.tcInternal.tv_double, "jointDistance", omniORB.tcInternal.tv_double, "linkLength", omniORB.tcInternal.tv_double, "linkTwist", omniORB.tcInternal.tv_double, "maxAngle", omniORB.tcInternal.tv_double, "minAngle", omniORB.tcInternal.tv_double)
-_0_Manipulation._tc_JointInfo = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_JointInfo)
-omniORB.registerType(JointInfo._NP_RepositoryId, _0_Manipulation._d_JointInfo, _0_Manipulation._tc_JointInfo)
-del JointInfo
+_0_Manipulation.JointParameter = JointParameter
+_0_Manipulation._d_JointParameter  = (omniORB.tcInternal.tv_struct, JointParameter, JointParameter._NP_RepositoryId, "JointParameter", "name", (omniORB.tcInternal.tv_string,0), "jointType", omniORB.typeMapping["IDL:Manipulation/JOINT_TYPE:1.0"], "axis", omniORB.typeMapping["IDL:Manipulation/Vector3:1.0"], "offset", omniORB.typeMapping["IDL:Manipulation/Matrix34:1.0"], "limit", omniORB.typeMapping["IDL:Manipulation/LimitValue:1.0"])
+_0_Manipulation._tc_JointParameter = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_JointParameter)
+omniORB.registerType(JointParameter._NP_RepositoryId, _0_Manipulation._d_JointParameter, _0_Manipulation._tc_JointParameter)
+del JointParameter
 
 # struct RobotJointInfo
 _0_Manipulation.RobotJointInfo = omniORB.newEmptyClass()
 class RobotJointInfo (omniORB.StructBase):
     _NP_RepositoryId = "IDL:Manipulation/RobotJointInfo:1.0"
 
-    def __init__(self, jointInfoSeq):
-        self.jointInfoSeq = jointInfoSeq
+    def __init__(self, jointParameterSeq):
+        self.jointParameterSeq = jointParameterSeq
 
 _0_Manipulation.RobotJointInfo = RobotJointInfo
-_0_Manipulation._d_RobotJointInfo  = (omniORB.tcInternal.tv_struct, RobotJointInfo, RobotJointInfo._NP_RepositoryId, "RobotJointInfo", "jointInfoSeq", (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/JointInfo:1.0"], 0))
+_0_Manipulation._d_RobotJointInfo  = (omniORB.tcInternal.tv_struct, RobotJointInfo, RobotJointInfo._NP_RepositoryId, "RobotJointInfo", "jointParameterSeq", (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/JointParameter:1.0"], 0))
 _0_Manipulation._tc_RobotJointInfo = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_RobotJointInfo)
 omniORB.registerType(RobotJointInfo._NP_RepositoryId, _0_Manipulation._d_RobotJointInfo, _0_Manipulation._tc_RobotJointInfo)
 del RobotJointInfo
@@ -109,29 +184,42 @@ _0_Manipulation.ManipulationPlan = omniORB.newEmptyClass()
 class ManipulationPlan (omniORB.StructBase):
     _NP_RepositoryId = "IDL:Manipulation/ManipulationPlan:1.0"
 
-    def __init__(self, robotID, robotJointInfoSeq):
+    def __init__(self, robotID, manipPath):
         self.robotID = robotID
-        self.robotJointInfoSeq = robotJointInfoSeq
+        self.manipPath = manipPath
 
 _0_Manipulation.ManipulationPlan = ManipulationPlan
-_0_Manipulation._d_ManipulationPlan  = (omniORB.tcInternal.tv_struct, ManipulationPlan, ManipulationPlan._NP_RepositoryId, "ManipulationPlan", "robotID", omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], "robotJointInfoSeq", (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"], 0))
+_0_Manipulation._d_ManipulationPlan  = (omniORB.tcInternal.tv_struct, ManipulationPlan, ManipulationPlan._NP_RepositoryId, "ManipulationPlan", "robotID", omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], "manipPath", (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"], 0))
 _0_Manipulation._tc_ManipulationPlan = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_ManipulationPlan)
 omniORB.registerType(ManipulationPlan._NP_RepositoryId, _0_Manipulation._d_ManipulationPlan, _0_Manipulation._tc_ManipulationPlan)
 del ManipulationPlan
 
-# struct CollisionInfo
-_0_Manipulation.CollisionInfo = omniORB.newEmptyClass()
-class CollisionInfo (omniORB.StructBase):
-    _NP_RepositoryId = "IDL:Manipulation/CollisionInfo:1.0"
+# struct CollisionPair
+_0_Manipulation.CollisionPair = omniORB.newEmptyClass()
+class CollisionPair (omniORB.StructBase):
+    _NP_RepositoryId = "IDL:Manipulation/CollisionPair:1.0"
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, name0, name1):
+        self.name0 = name0
+        self.name1 = name1
 
-_0_Manipulation.CollisionInfo = CollisionInfo
-_0_Manipulation._d_CollisionInfo  = (omniORB.tcInternal.tv_struct, CollisionInfo, CollisionInfo._NP_RepositoryId, "CollisionInfo", "name", (omniORB.tcInternal.tv_string,0))
-_0_Manipulation._tc_CollisionInfo = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_CollisionInfo)
-omniORB.registerType(CollisionInfo._NP_RepositoryId, _0_Manipulation._d_CollisionInfo, _0_Manipulation._tc_CollisionInfo)
-del CollisionInfo
+_0_Manipulation.CollisionPair = CollisionPair
+_0_Manipulation._d_CollisionPair  = (omniORB.tcInternal.tv_struct, CollisionPair, CollisionPair._NP_RepositoryId, "CollisionPair", "name0", (omniORB.tcInternal.tv_string,0), "name1", (omniORB.tcInternal.tv_string,0))
+_0_Manipulation._tc_CollisionPair = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_CollisionPair)
+omniORB.registerType(CollisionPair._NP_RepositoryId, _0_Manipulation._d_CollisionPair, _0_Manipulation._tc_CollisionPair)
+del CollisionPair
+
+# typedef ... CollisionPairSeq
+class CollisionPairSeq:
+    _NP_RepositoryId = "IDL:Manipulation/CollisionPairSeq:1.0"
+    def __init__(self, *args, **kw):
+        raise RuntimeError("Cannot construct objects of this type.")
+_0_Manipulation.CollisionPairSeq = CollisionPairSeq
+_0_Manipulation._d_CollisionPairSeq  = (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/CollisionPair:1.0"], 0)
+_0_Manipulation._ad_CollisionPairSeq = (omniORB.tcInternal.tv_alias, CollisionPairSeq._NP_RepositoryId, "CollisionPairSeq", (omniORB.tcInternal.tv_sequence, omniORB.typeMapping["IDL:Manipulation/CollisionPair:1.0"], 0))
+_0_Manipulation._tc_CollisionPairSeq = omniORB.tcInternal.createTypeCode(_0_Manipulation._ad_CollisionPairSeq)
+omniORB.registerType(CollisionPairSeq._NP_RepositoryId, _0_Manipulation._ad_CollisionPairSeq, _0_Manipulation._tc_CollisionPairSeq)
+del CollisionPairSeq
 
 # struct MeshInfo
 _0_Manipulation.MeshInfo = omniORB.newEmptyClass()
@@ -146,6 +234,47 @@ _0_Manipulation._d_MeshInfo  = (omniORB.tcInternal.tv_struct, MeshInfo, MeshInfo
 _0_Manipulation._tc_MeshInfo = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_MeshInfo)
 omniORB.registerType(MeshInfo._NP_RepositoryId, _0_Manipulation._d_MeshInfo, _0_Manipulation._tc_MeshInfo)
 del MeshInfo
+
+# enum RETURN_ID
+_0_Manipulation.OK = omniORB.EnumItem("OK", 0)
+_0_Manipulation.MODEL_NOT_FOUND = omniORB.EnumItem("MODEL_NOT_FOUND", 1)
+_0_Manipulation.INVALID_SETTING = omniORB.EnumItem("INVALID_SETTING", 2)
+_0_Manipulation.INVALID_ARGUMENT = omniORB.EnumItem("INVALID_ARGUMENT", 3)
+_0_Manipulation.ERROR_UNKNOWN = omniORB.EnumItem("ERROR_UNKNOWN", 4)
+_0_Manipulation.RETURN_ID = omniORB.Enum("IDL:Manipulation/RETURN_ID:1.0", (_0_Manipulation.OK, _0_Manipulation.MODEL_NOT_FOUND, _0_Manipulation.INVALID_SETTING, _0_Manipulation.INVALID_ARGUMENT, _0_Manipulation.ERROR_UNKNOWN,))
+
+_0_Manipulation._d_RETURN_ID  = (omniORB.tcInternal.tv_enum, _0_Manipulation.RETURN_ID._NP_RepositoryId, "RETURN_ID", _0_Manipulation.RETURN_ID._items)
+_0_Manipulation._tc_RETURN_ID = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_RETURN_ID)
+omniORB.registerType(_0_Manipulation.RETURN_ID._NP_RepositoryId, _0_Manipulation._d_RETURN_ID, _0_Manipulation._tc_RETURN_ID)
+
+# struct ReturnValue
+_0_Manipulation.ReturnValue = omniORB.newEmptyClass()
+class ReturnValue (omniORB.StructBase):
+    _NP_RepositoryId = "IDL:Manipulation/ReturnValue:1.0"
+
+    def __init__(self, id, message):
+        self.id = id
+        self.message = message
+
+_0_Manipulation.ReturnValue = ReturnValue
+_0_Manipulation._d_ReturnValue  = (omniORB.tcInternal.tv_struct, ReturnValue, ReturnValue._NP_RepositoryId, "ReturnValue", "id", omniORB.typeMapping["IDL:Manipulation/RETURN_ID:1.0"], "message", (omniORB.tcInternal.tv_string,0))
+_0_Manipulation._tc_ReturnValue = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_ReturnValue)
+omniORB.registerType(ReturnValue._NP_RepositoryId, _0_Manipulation._d_ReturnValue, _0_Manipulation._tc_ReturnValue)
+del ReturnValue
+
+# struct EndEffectorPose
+_0_Manipulation.EndEffectorPose = omniORB.newEmptyClass()
+class EndEffectorPose (omniORB.StructBase):
+    _NP_RepositoryId = "IDL:Manipulation/EndEffectorPose:1.0"
+
+    def __init__(self, pose):
+        self.pose = pose
+
+_0_Manipulation.EndEffectorPose = EndEffectorPose
+_0_Manipulation._d_EndEffectorPose  = (omniORB.tcInternal.tv_struct, EndEffectorPose, EndEffectorPose._NP_RepositoryId, "EndEffectorPose", "pose", omniORB.typeMapping["IDL:RTC/Pose3D:1.0"])
+_0_Manipulation._tc_EndEffectorPose = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_EndEffectorPose)
+omniORB.registerType(EndEffectorPose._NP_RepositoryId, _0_Manipulation._d_EndEffectorPose, _0_Manipulation._tc_EndEffectorPose)
+del EndEffectorPose
 
 # interface ObjectDetectionService
 _0_Manipulation._d_ObjectDetectionService = (omniORB.tcInternal.tv_objref, "IDL:Manipulation/ObjectDetectionService:1.0", "ObjectDetectionService")
@@ -165,8 +294,8 @@ _0_Manipulation._tc_ObjectDetectionService = omniORB.tcInternal.createTypeCode(_
 omniORB.registerType(ObjectDetectionService._NP_RepositoryId, _0_Manipulation._d_ObjectDetectionService, _0_Manipulation._tc_ObjectDetectionService)
 
 # ObjectDetectionService operations and attributes
-ObjectDetectionService._d_detectObject = ((omniORB.typeMapping["IDL:Manipulation/ObjectIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ObjectInfo:1.0"], ), None)
-ObjectDetectionService._d_setGeometry = ((omniORB.typeMapping["IDL:RTC/Geometry3D:1.0"], ), (), None)
+ObjectDetectionService._d_detectObject = ((omniORB.typeMapping["IDL:Manipulation/ObjectIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/ObjectInfo:1.0"]), None)
+ObjectDetectionService._d_setBaseFrame = ((omniORB.typeMapping["IDL:Manipulation/Matrix34:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], ), None)
 
 # ObjectDetectionService object reference
 class _objref_ObjectDetectionService (CORBA.Object):
@@ -178,10 +307,10 @@ class _objref_ObjectDetectionService (CORBA.Object):
     def detectObject(self, *args):
         return _omnipy.invoke(self, "detectObject", _0_Manipulation.ObjectDetectionService._d_detectObject, args)
 
-    def setGeometry(self, *args):
-        return _omnipy.invoke(self, "setGeometry", _0_Manipulation.ObjectDetectionService._d_setGeometry, args)
+    def setBaseFrame(self, *args):
+        return _omnipy.invoke(self, "setBaseFrame", _0_Manipulation.ObjectDetectionService._d_setBaseFrame, args)
 
-    __methods__ = ["detectObject", "setGeometry"] + CORBA.Object.__methods__
+    __methods__ = ["detectObject", "setBaseFrame"] + CORBA.Object.__methods__
 
 omniORB.registerObjref(ObjectDetectionService._NP_RepositoryId, _objref_ObjectDetectionService)
 _0_Manipulation._objref_ObjectDetectionService = _objref_ObjectDetectionService
@@ -193,7 +322,7 @@ class ObjectDetectionService (PortableServer.Servant):
     _NP_RepositoryId = _0_Manipulation.ObjectDetectionService._NP_RepositoryId
 
 
-    _omni_op_d = {"detectObject": _0_Manipulation.ObjectDetectionService._d_detectObject, "setGeometry": _0_Manipulation.ObjectDetectionService._d_setGeometry}
+    _omni_op_d = {"detectObject": _0_Manipulation.ObjectDetectionService._d_detectObject, "setBaseFrame": _0_Manipulation.ObjectDetectionService._d_setBaseFrame}
 
 ObjectDetectionService._omni_skeleton = ObjectDetectionService
 _0_Manipulation__POA.ObjectDetectionService = ObjectDetectionService
@@ -201,12 +330,12 @@ omniORB.registerSkeleton(ObjectDetectionService._NP_RepositoryId, ObjectDetectio
 del ObjectDetectionService
 __name__ = "Manipulation"
 
-# interface KinematicsSolverService
-_0_Manipulation._d_KinematicsSolverService = (omniORB.tcInternal.tv_objref, "IDL:Manipulation/KinematicsSolverService:1.0", "KinematicsSolverService")
-omniORB.typeMapping["IDL:Manipulation/KinematicsSolverService:1.0"] = _0_Manipulation._d_KinematicsSolverService
-_0_Manipulation.KinematicsSolverService = omniORB.newEmptyClass()
-class KinematicsSolverService :
-    _NP_RepositoryId = _0_Manipulation._d_KinematicsSolverService[1]
+# interface ObjectHandleStrategyService
+_0_Manipulation._d_ObjectHandleStrategyService = (omniORB.tcInternal.tv_objref, "IDL:Manipulation/ObjectHandleStrategyService:1.0", "ObjectHandleStrategyService")
+omniORB.typeMapping["IDL:Manipulation/ObjectHandleStrategyService:1.0"] = _0_Manipulation._d_ObjectHandleStrategyService
+_0_Manipulation.ObjectHandleStrategyService = omniORB.newEmptyClass()
+class ObjectHandleStrategyService :
+    _NP_RepositoryId = _0_Manipulation._d_ObjectHandleStrategyService[1]
 
     def __init__(self, *args, **kw):
         raise RuntimeError("Cannot construct objects of this type.")
@@ -214,41 +343,91 @@ class KinematicsSolverService :
     _nil = CORBA.Object._nil
 
 
-_0_Manipulation.KinematicsSolverService = KinematicsSolverService
-_0_Manipulation._tc_KinematicsSolverService = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_KinematicsSolverService)
-omniORB.registerType(KinematicsSolverService._NP_RepositoryId, _0_Manipulation._d_KinematicsSolverService, _0_Manipulation._tc_KinematicsSolverService)
+_0_Manipulation.ObjectHandleStrategyService = ObjectHandleStrategyService
+_0_Manipulation._tc_ObjectHandleStrategyService = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_ObjectHandleStrategyService)
+omniORB.registerType(ObjectHandleStrategyService._NP_RepositoryId, _0_Manipulation._d_ObjectHandleStrategyService, _0_Manipulation._tc_ObjectHandleStrategyService)
 
-# KinematicsSolverService operations and attributes
-KinematicsSolverService._d_solveInverseKinematics = ((omniORB.typeMapping["IDL:Manipulation/ObjectInfo:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"], ), None)
+# ObjectHandleStrategyService operations and attributes
+ObjectHandleStrategyService._d_getApproachOrientation = ((omniORB.typeMapping["IDL:Manipulation/ObjectInfo:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/EndEffectorPose:1.0"]), None)
 
-# KinematicsSolverService object reference
-class _objref_KinematicsSolverService (CORBA.Object):
-    _NP_RepositoryId = KinematicsSolverService._NP_RepositoryId
+# ObjectHandleStrategyService object reference
+class _objref_ObjectHandleStrategyService (CORBA.Object):
+    _NP_RepositoryId = ObjectHandleStrategyService._NP_RepositoryId
 
     def __init__(self):
         CORBA.Object.__init__(self)
 
-    def solveInverseKinematics(self, *args):
-        return _omnipy.invoke(self, "solveInverseKinematics", _0_Manipulation.KinematicsSolverService._d_solveInverseKinematics, args)
+    def getApproachOrientation(self, *args):
+        return _omnipy.invoke(self, "getApproachOrientation", _0_Manipulation.ObjectHandleStrategyService._d_getApproachOrientation, args)
 
-    __methods__ = ["solveInverseKinematics"] + CORBA.Object.__methods__
+    __methods__ = ["getApproachOrientation"] + CORBA.Object.__methods__
 
-omniORB.registerObjref(KinematicsSolverService._NP_RepositoryId, _objref_KinematicsSolverService)
-_0_Manipulation._objref_KinematicsSolverService = _objref_KinematicsSolverService
-del KinematicsSolverService, _objref_KinematicsSolverService
+omniORB.registerObjref(ObjectHandleStrategyService._NP_RepositoryId, _objref_ObjectHandleStrategyService)
+_0_Manipulation._objref_ObjectHandleStrategyService = _objref_ObjectHandleStrategyService
+del ObjectHandleStrategyService, _objref_ObjectHandleStrategyService
 
-# KinematicsSolverService skeleton
+# ObjectHandleStrategyService skeleton
 __name__ = "Manipulation__POA"
-class KinematicsSolverService (PortableServer.Servant):
-    _NP_RepositoryId = _0_Manipulation.KinematicsSolverService._NP_RepositoryId
+class ObjectHandleStrategyService (PortableServer.Servant):
+    _NP_RepositoryId = _0_Manipulation.ObjectHandleStrategyService._NP_RepositoryId
 
 
-    _omni_op_d = {"solveInverseKinematics": _0_Manipulation.KinematicsSolverService._d_solveInverseKinematics}
+    _omni_op_d = {"getApproachOrientation": _0_Manipulation.ObjectHandleStrategyService._d_getApproachOrientation}
 
-KinematicsSolverService._omni_skeleton = KinematicsSolverService
-_0_Manipulation__POA.KinematicsSolverService = KinematicsSolverService
-omniORB.registerSkeleton(KinematicsSolverService._NP_RepositoryId, KinematicsSolverService)
-del KinematicsSolverService
+ObjectHandleStrategyService._omni_skeleton = ObjectHandleStrategyService
+_0_Manipulation__POA.ObjectHandleStrategyService = ObjectHandleStrategyService
+omniORB.registerSkeleton(ObjectHandleStrategyService._NP_RepositoryId, ObjectHandleStrategyService)
+del ObjectHandleStrategyService
+__name__ = "Manipulation"
+
+# interface KinematicSolverService
+_0_Manipulation._d_KinematicSolverService = (omniORB.tcInternal.tv_objref, "IDL:Manipulation/KinematicSolverService:1.0", "KinematicSolverService")
+omniORB.typeMapping["IDL:Manipulation/KinematicSolverService:1.0"] = _0_Manipulation._d_KinematicSolverService
+_0_Manipulation.KinematicSolverService = omniORB.newEmptyClass()
+class KinematicSolverService :
+    _NP_RepositoryId = _0_Manipulation._d_KinematicSolverService[1]
+
+    def __init__(self, *args, **kw):
+        raise RuntimeError("Cannot construct objects of this type.")
+
+    _nil = CORBA.Object._nil
+
+
+_0_Manipulation.KinematicSolverService = KinematicSolverService
+_0_Manipulation._tc_KinematicSolverService = omniORB.tcInternal.createTypeCode(_0_Manipulation._d_KinematicSolverService)
+omniORB.registerType(KinematicSolverService._NP_RepositoryId, _0_Manipulation._d_KinematicSolverService, _0_Manipulation._tc_KinematicSolverService)
+
+# KinematicSolverService operations and attributes
+KinematicSolverService._d_solveKinematics = ((omniORB.typeMapping["IDL:Manipulation/EndEffectorPose:1.0"], omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"]), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"]), None)
+
+# KinematicSolverService object reference
+class _objref_KinematicSolverService (CORBA.Object):
+    _NP_RepositoryId = KinematicSolverService._NP_RepositoryId
+
+    def __init__(self):
+        CORBA.Object.__init__(self)
+
+    def solveKinematics(self, *args):
+        return _omnipy.invoke(self, "solveKinematics", _0_Manipulation.KinematicSolverService._d_solveKinematics, args)
+
+    __methods__ = ["solveKinematics"] + CORBA.Object.__methods__
+
+omniORB.registerObjref(KinematicSolverService._NP_RepositoryId, _objref_KinematicSolverService)
+_0_Manipulation._objref_KinematicSolverService = _objref_KinematicSolverService
+del KinematicSolverService, _objref_KinematicSolverService
+
+# KinematicSolverService skeleton
+__name__ = "Manipulation__POA"
+class KinematicSolverService (PortableServer.Servant):
+    _NP_RepositoryId = _0_Manipulation.KinematicSolverService._NP_RepositoryId
+
+
+    _omni_op_d = {"solveKinematics": _0_Manipulation.KinematicSolverService._d_solveKinematics}
+
+KinematicSolverService._omni_skeleton = KinematicSolverService
+_0_Manipulation__POA.KinematicSolverService = KinematicSolverService
+omniORB.registerSkeleton(KinematicSolverService._NP_RepositoryId, KinematicSolverService)
+del KinematicSolverService
 __name__ = "Manipulation"
 
 # interface CollisionDetectionService
@@ -269,7 +448,7 @@ _0_Manipulation._tc_CollisionDetectionService = omniORB.tcInternal.createTypeCod
 omniORB.registerType(CollisionDetectionService._NP_RepositoryId, _0_Manipulation._d_CollisionDetectionService, _0_Manipulation._tc_CollisionDetectionService)
 
 # CollisionDetectionService operations and attributes
-CollisionDetectionService._d_isCollide = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"]), (omniORB.tcInternal.tv_boolean, omniORB.typeMapping["IDL:Manipulation/CollisionInfo:1.0"]), None)
+CollisionDetectionService._d_isCollide = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"]), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/CollisionPairSeq:1.0"]), None)
 
 # CollisionDetectionService object reference
 class _objref_CollisionDetectionService (CORBA.Object):
@@ -319,7 +498,7 @@ _0_Manipulation._tc_ManipulationPlannerService = omniORB.tcInternal.createTypeCo
 omniORB.registerType(ManipulationPlannerService._NP_RepositoryId, _0_Manipulation._d_ManipulationPlannerService, _0_Manipulation._tc_ManipulationPlannerService)
 
 # ManipulationPlannerService operations and attributes
-ManipulationPlannerService._d_planManipulation = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"], omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"]), (omniORB.typeMapping["IDL:Manipulation/ManipulationPlan:1.0"], ), None)
+ManipulationPlannerService._d_planManipulation = ((omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"], omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"], omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"]), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/ManipulationPlan:1.0"]), None)
 
 # ManipulationPlannerService object reference
 class _objref_ManipulationPlannerService (CORBA.Object):
@@ -369,8 +548,8 @@ _0_Manipulation._tc_ModelServerService = omniORB.tcInternal.createTypeCode(_0_Ma
 omniORB.registerType(ModelServerService._NP_RepositoryId, _0_Manipulation._d_ModelServerService, _0_Manipulation._tc_ModelServerService)
 
 # ModelServerService operations and attributes
-ModelServerService._d_getModelInfo = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"], ), None)
-ModelServerService._d_getMeshInfo = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/MeshInfo:1.0"], ), None)
+ModelServerService._d_getModelInfo = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"]), None)
+ModelServerService._d_getMeshInfo = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/MeshInfo:1.0"]), None)
 
 # ModelServerService object reference
 class _objref_ModelServerService (CORBA.Object):
@@ -423,8 +602,8 @@ _0_Manipulation._tc_MotionGeneratorService = omniORB.tcInternal.createTypeCode(_
 omniORB.registerType(MotionGeneratorService._NP_RepositoryId, _0_Manipulation._d_MotionGeneratorService, _0_Manipulation._tc_MotionGeneratorService)
 
 # MotionGeneratorService operations and attributes
-MotionGeneratorService._d_followManipPlan = ((omniORB.typeMapping["IDL:Manipulation/ManipulationPlan:1.0"], ), (), None)
-MotionGeneratorService._d_getCurrentRobotJointInfo = ((omniORB.typeMapping["IDL:Manipulation/RobotIdentifier:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/RobotJointInfo:1.0"], ), None)
+MotionGeneratorService._d_followManipPlan = ((omniORB.typeMapping["IDL:Manipulation/ManipulationPlan:1.0"], ), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], ), None)
+MotionGeneratorService._d_getCurrentRobotJointAngles = ((), (omniORB.typeMapping["IDL:Manipulation/ReturnValue:1.0"], omniORB.typeMapping["IDL:Manipulation/JointAngleSeq:1.0"]), None)
 
 # MotionGeneratorService object reference
 class _objref_MotionGeneratorService (CORBA.Object):
@@ -436,10 +615,10 @@ class _objref_MotionGeneratorService (CORBA.Object):
     def followManipPlan(self, *args):
         return _omnipy.invoke(self, "followManipPlan", _0_Manipulation.MotionGeneratorService._d_followManipPlan, args)
 
-    def getCurrentRobotJointInfo(self, *args):
-        return _omnipy.invoke(self, "getCurrentRobotJointInfo", _0_Manipulation.MotionGeneratorService._d_getCurrentRobotJointInfo, args)
+    def getCurrentRobotJointAngles(self, *args):
+        return _omnipy.invoke(self, "getCurrentRobotJointAngles", _0_Manipulation.MotionGeneratorService._d_getCurrentRobotJointAngles, args)
 
-    __methods__ = ["followManipPlan", "getCurrentRobotJointInfo"] + CORBA.Object.__methods__
+    __methods__ = ["followManipPlan", "getCurrentRobotJointAngles"] + CORBA.Object.__methods__
 
 omniORB.registerObjref(MotionGeneratorService._NP_RepositoryId, _objref_MotionGeneratorService)
 _0_Manipulation._objref_MotionGeneratorService = _objref_MotionGeneratorService
@@ -451,7 +630,7 @@ class MotionGeneratorService (PortableServer.Servant):
     _NP_RepositoryId = _0_Manipulation.MotionGeneratorService._NP_RepositoryId
 
 
-    _omni_op_d = {"followManipPlan": _0_Manipulation.MotionGeneratorService._d_followManipPlan, "getCurrentRobotJointInfo": _0_Manipulation.MotionGeneratorService._d_getCurrentRobotJointInfo}
+    _omni_op_d = {"followManipPlan": _0_Manipulation.MotionGeneratorService._d_followManipPlan, "getCurrentRobotJointAngles": _0_Manipulation.MotionGeneratorService._d_getCurrentRobotJointAngles}
 
 MotionGeneratorService._omni_skeleton = MotionGeneratorService
 _0_Manipulation__POA.MotionGeneratorService = MotionGeneratorService
