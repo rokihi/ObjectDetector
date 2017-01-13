@@ -212,7 +212,7 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         result = (0, "set Base Frame")
         return result
 
-    def setImafeData(self, image):
+    def setImageData(self, image):
         self.image=image
         
     def setConfigParams(self, scale_x, scale_y, scale_z, ofs_x, ofs_y, ofs_z):
