@@ -163,7 +163,7 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             
         yolo.detect_from_cvmat(cvimage)
 
-
+        
         for i in range(len(yolo.result)):
             w = yolo.result[i][3]
             h = yolo.result[i][4]
@@ -192,9 +192,11 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
                 # objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
 
                 self.objInfo.pose = (x, y, z, 0, 0, 0)
-                print 'Picking Object: ' + str(self.objInfo)
-                
-                break
+                print 
+                print 'Picking Object is... '
+                print self.objInfo
+                print '-----------------------------------------------------------------------------'
+                break 
         
         return self.objInfo
 
