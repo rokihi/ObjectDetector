@@ -18,6 +18,7 @@ import RTC
 import OpenRTM_aist
 
 import TrajectoryPlanner_idl
+import ManipulatorCommonInterface_MiddleLevel_idl
 import RGBDCamera
 
 # Import Service implementation class
@@ -28,6 +29,10 @@ from TrajectoryPlanner_idl_example import *
 
 # Import Service stub modules
 # <rtc-template block="consumer_import">
+import Manipulation, Manipulation__POA
+import JARA_ARM, JARA_ARM__POA
+
+
 # </rtc-template>
 
 
@@ -36,24 +41,33 @@ from TrajectoryPlanner_idl_example import *
 objectdetector_yolotf_spec = ["implementation_id", "ObjectDetector_YOLOtf", 
 		 "type_name",         "ObjectDetector_YOLOtf", 
 		 "description",       "YOLO_tensorflow", 
-		 "version",           "1.1.0", 
+		 "version",           "1.1.2", 
 		 "vendor",            "ota", 
 		 "category",          "ObjectRecognition", 
 		 "activity_type",     "STATIC", 
 		 "max_instance",      "1", 
 		 "language",          "Python", 
 		 "lang_type",         "SCRIPT",
-		 "conf.default.scale_x", "1.0",
-		 "conf.default.scale_y", "1.0",
+		 "conf.default.scale_x", "0.001",
+		 "conf.default.scale_y", "0.001",
 		 "conf.default.scale_z", "1.0",
+		 "conf.default.camera_offset_x", "-0.056",
+		 "conf.default.camera_offset_y", "-0.047",
+		 "conf.default.camera_offset_z", "0.072",
 
 		 "conf.__widget__.scale_x", "text",
 		 "conf.__widget__.scale_y", "text",
 		 "conf.__widget__.scale_z", "text",
+		 "conf.__widget__.camera_offset_x", "text",
+		 "conf.__widget__.camera_offset_y", "text",
+		 "conf.__widget__.camera_offset_z", "text",
 
          "conf.__type__.scale_x", "double",
          "conf.__type__.scale_y", "double",
          "conf.__type__.scale_z", "double",
+         "conf.__type__.camera_offset_x", "double",
+         "conf.__type__.camera_offset_y", "double",
+         "conf.__type__.camera_offset_z", "double",
 
 		 ""]
 # </rtc-template>
@@ -91,37 +105,61 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		"""
 		"""
 		self._ObjectDetectionPort = OpenRTM_aist.CorbaPort("ObjectDetection")
+		"""
+		"""
+		self._manipulatorCommonInterfaceMiddlePort = OpenRTM_aist.CorbaPort("manipulatorCommonInterfaceMiddle")
 
 		"""
 		"""
 		self._detectObjProvider = ObjectDetectionService_i()
 		
 
+		"""
+		"""
+		self._ManipMiddle = OpenRTM_aist.CorbaConsumer(interfaceType=JARA_ARM.ManipulatorCommonInterface_Middle)
 
 		# initialize of configuration-data.
 		# <rtc-template block="init_conf_param">
 		"""
 		
 		 - Name:  scale_x
-		 - DefaultValue: 1.0
+		 - DefaultValue: 0.001
 		"""
-		self._scale_x = [1.0]
+		self._scale_x = [0.001]
 		"""
 		
 		 - Name:  scale_y
-		 - DefaultValue: 1.0
+		 - DefaultValue: 0.001
 		"""
-		self._scale_y = [1.0]
+		self._scale_y = [0.001]
 		"""
 		
 		 - Name:  scale_z
 		 - DefaultValue: 1.0
 		"""
 		self._scale_z = [1.0]
+		"""
+		
+		 - Name:  camera_offset_x
+		 - DefaultValue: 72
+		"""
+		self._camera_offset_x = [-0.056]
+		"""
+		
+		 - Name:  camera_offset_y
+		 - DefaultValue: -47
+		"""
+		self._camera_offset_y = [-0.047]
+		"""
+		
+		 - Name:  camera_offset_z
+		 - DefaultValue: 56
+		"""
+		self._camera_offset_z = [0.072]
 		
 		# </rtc-template>
 
-		self.image_type = 'RGBDCameraImage'
+
 		 
 	##
 	#
@@ -133,9 +171,12 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 	#
 	def onInitialize(self):
 		# Bind variables and configuration variable
-		self.bindParameter("scale_x", self._scale_x, "1.0")
-		self.bindParameter("scale_y", self._scale_y, "1.0")
+		self.bindParameter("scale_x", self._scale_x, "0.001")
+		self.bindParameter("scale_y", self._scale_y, "0.001")
 		self.bindParameter("scale_z", self._scale_z, "1.0")
+		self.bindParameter("camera_offset_x", self._camera_offset_x, "0.072")
+		self.bindParameter("camera_offset_y", self._camera_offset_y, "-0.047")
+		self.bindParameter("camera_offset_z", self._camera_offset_z, "0.056")
 		
 		# Set InPort buffers
 		self.addInPort("image",self._imageIn)
@@ -148,9 +189,11 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		self._ObjectDetectionPort.registerProvider("ObjectDetectionService", "Manipulation::ObjectDetectionService", self._detectObjProvider)
 		
 		# Set service consumers to Ports
+		self._manipulatorCommonInterfaceMiddlePort.registerConsumer("JARA_ARM_ManipulatorCommonInterface_Middle", "JARA_ARM::ManipulatorCommonInterface_Middle", self._ManipMiddle)
 		
 		# Set CORBA Service Ports
 		self.addPort(self._ObjectDetectionPort)
+		self.addPort(self._manipulatorCommonInterfaceMiddlePort)
 		
 		return RTC.RTC_OK
 	
@@ -206,11 +249,8 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		#
 	def onActivated(self, ec_id):
 		
-		self._d_result.data=[]
 		self._detectObjProvider.setComp(self)
-#		print('CreateWindow')
-# 		cv2.namedWindow("ReceiveImage", cv.CV_WINDOW_AUTOSIZE)
-
+	
 		return RTC.RTC_OK
 	
 		##
@@ -224,9 +264,6 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		#
 		#
 	def onDeactivated(self, ec_id):
-		
-# 		print('DestoryWindow ')
-# 		cv2.destroyAllWindows()
 	
 		return RTC.RTC_OK
 	
@@ -241,6 +278,10 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		#
 		#
 	def onExecute(self, ec_id):
+		
+		frame = self._ManipMiddle._ptr().getFeedbackPosCartesian()[1].carPos
+		self._detectObjProvider.setBaseFrame(frame)
+		
 		if self._imageIn.isNew():
 			self.image_type='RTCCameraImage'
 			self._d_image = self._imageIn.read()
@@ -249,22 +290,9 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 			#print self._d_image.height, self._d_image.width, self._d_image.bpp
  
 			#cvimage = numpy.fromstring( self._d_image.pixels, dtype=numpy.uint8 ).reshape( self._d_image.height, self._d_image.width, -1 )
-# 			#cv2.imshow('cameraimage',cvimage)
-# 			#key = cv2.waitKey(1)
-#  		
-			#yolo.detect_from_cvmat(cvimage)
-					
-# 			for i in range(len(yolo.result)):
-# 				x = int(yolo.result[i][1])
-# 				y = int(yolo.result[i][2])
-# 				w = int(yolo.result[i][3])
-# 				h = int(yolo.result[i][4])
-# 				print '	ID : ' + yolo.result[i][0] + ' , [x,y,w,h]=[' + str(x) + ',' + str(y) + ',' + str(w) + ',' + str(h)+'], Confidence = ' + str(yolo.result[i][5])
-#   				
-#   				for j in range (0, 4):
-# 				  	self._d_result.data.append(str(int(yolo.result[i][j])))
-				
-# 				print self._d_result.data
+ 			#cv2.imshow('cameraimage',cvimage)
+ 			#key = cv2.waitKey(1)
+
 		if self._RGBDimageIn.isNew():
 			self.image_type='RGBDCameraImage'
 			self._d_RGBDimage = self._RGBDimageIn.read()

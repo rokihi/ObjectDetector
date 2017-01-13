@@ -109,6 +109,9 @@ Parameter        Data type          Default Value    Effect
 scale_x          double             1.0              
 scale_y          double             1.0              
 scale_z          double             1.0              
+camera_offset_x  double             72               
+camera_offset_y  double             -47              
+camera_offset_z  double             56               
 ================ ================== ================ ======
 
 Ports
@@ -123,6 +126,7 @@ image           InPort      RTC::CameraImage
 RGBDimage       InPort      RGBDCamera::TimedRGBDCameraImage 
 resultString    OutPort     RTC::TimedStringSeq            
 ObjectDetectionService ServicePort Manipulation::ObjectDetectionService 
+JARA_ARM_ManipulatorCommonInterface_Middle ServicePort JARA_ARM::ManipulatorCommonInterface_Middle 
 =============== =========== ============================== =======
 
 Examples
