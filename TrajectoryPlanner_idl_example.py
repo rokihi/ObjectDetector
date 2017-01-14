@@ -19,10 +19,10 @@ import sys
 import time
 sys.path.append(".")
 # Import RTM module
-# import RTC
-# import OpenRTM_aist
+import RTC
+import OpenRTM_aist
 import ExtendedDataTypes_idl
-# from ExtendedDataTypes_idl import Pose3D, Orientation3D
+#from ExtendedDataTypes_idl import Pose3D, Orientation3D
 
 import numpy as np
 import cv2
@@ -48,8 +48,6 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         @brief standard constructor
         Initialise member variables here
         """
-        self.geometry = (0, 0, 0, 0, 0, 0, 0, 0, 0)
-        
         self.objectID = ''
         self.pose = (0, 0, 0, 0, 0, 0)
         self.objInfo = Manipulation.ObjectInfo(self.objectID, self.pose)
@@ -164,7 +162,7 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             
         yolo.detect_from_cvmat(cvimage)
 
-
+        
         for i in range(len(yolo.result)):
             w = yolo.result[i][3]
             h = yolo.result[i][4]
@@ -190,19 +188,24 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             
             if yolo.result[i][0] == objectID.name:
                 
-                # objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
+                self.objInfo.pose = RTC.Pose3D(RTC.Point3D(x, y, z), RTC.Orientation3D(0, 0, 0))
+                
+                print 'Picking Object: ' + str(self.objInfo.objectID.name)
+                
+                print 
+                print 'Picking Object is... '
+                print self.objInfo
+                print '-----------------------------------------------------------------------------'
+                break                   
 
-                self.objInfo.pose.position.x = x
-                self.objInfo.pose.position.y = y
-                self.objInfo.pose.position.z = z
-                #self.objInfo.pose.orientation.r = 0.0
-                
-                print 'Picking Object: ' + str(self.objInfo)
-                
-                break
-            
+
+            else:
+                print 'No Matched Object.'
+                print '-----------------------------------------------------------------------------'
+
         result = Manipulation.ReturnValue(Manipulation.OK,"Detected")
         return (result, self.objInfo)
+            
 
     # ReturnValue setBaseFrame(in Matrix34 frame)
     def setBaseFrame(self, frame):
@@ -214,6 +217,17 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         result = (0, "set Base Frame")
         return result
 
+    def setImageData(self, image):
+        self.image=image
+        
+    def setConfigParams(self, scale_x, scale_y, scale_z, ofs_x, ofs_y, ofs_z):
+        self.camera_image=camera_image
+        self.scale_x=scale_x
+        self.scale_y=scale_y
+        self.scale_z=scale_z
+        self.ofs_x=ofs_x
+        self.ofs_y=ofs_y
+        self.ofs_z=ofs_z
 
 # class ObjectHandleStrategyService_i (Manipulation__POA.ObjectHandleStrategyService):
 #     """

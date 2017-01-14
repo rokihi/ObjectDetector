@@ -11,9 +11,9 @@
 #ifndef RGBDCAMERAIMAGE_IDL_INCLUDED
 #define RGBDCAMERAIMAGE_IDL_INCLUDED
 
-#include <BasicDataType.idl>
-#include <ExtendedDataTypes.idl>
-#include <CameraCommonInterface.idl>
+#include "BasicDataType.idl"
+#include "ExtendedDataTypes.idl"
+#include "CameraCommonInterface.idl"
 
 module RGBDCamera {
 
