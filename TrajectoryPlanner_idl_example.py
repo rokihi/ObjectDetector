@@ -13,6 +13,7 @@
 import omniORB
 from omniORB import CORBA, PortableServer
 import Manipulation, Manipulation__POA
+import RTC
 
 import sys
 import time
@@ -140,8 +141,8 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # Must return: objInfo
         # print 'objectID:' + objectID.name
         self.objInfo.objectID = objectID.name
+        self.objInfo = Manipulation.ObjectInfo(Manipulation.ObjectIdentifier(objectID.name),RTC.Pose3D(RTC.Point3D(0.0,0.0,0.0), RTC.Orientation3D(0.0,0.0,0.0)))
         print self.objInfo
-
         
         if self.RTComp.image_type == 'RTCCameraImage':
             print 'format: ' + self.RTComp._d_image.format
@@ -191,12 +192,17 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
                 
                 # objInfo.pose = Pose3D(Point3D(x, y, z), Orientation3D(0, 0, 0))
 
-                self.objInfo.pose = (x, y, z, 0, 0, 0)
+                self.objInfo.pose.position.x = x
+                self.objInfo.pose.position.y = y
+                self.objInfo.pose.position.z = z
+                #self.objInfo.pose.orientation.r = 0.0
+                
                 print 'Picking Object: ' + str(self.objInfo)
                 
                 break
-        
-        return self.objInfo
+            
+        result = Manipulation.ReturnValue(Manipulation.OK,"Detected")
+        return (result, self.objInfo)
 
     # ReturnValue setBaseFrame(in Matrix34 frame)
     def setBaseFrame(self, frame):
