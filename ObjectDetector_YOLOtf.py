@@ -141,19 +141,19 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		"""
 		
 		 - Name:  camera_offset_x
-		 - DefaultValue: 72
+		 - DefaultValue: -0.056
 		"""
 		self._camera_offset_x = [-0.056]
 		"""
 		
 		 - Name:  camera_offset_y
-		 - DefaultValue: -47
+		 - DefaultValue: -0.047
 		"""
 		self._camera_offset_y = [-0.047]
 		"""
 		
 		 - Name:  camera_offset_z
-		 - DefaultValue: 56
+		 - DefaultValue: 0.072
 		"""
 		self._camera_offset_z = [0.072]
 		
@@ -174,9 +174,9 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		self.bindParameter("scale_x", self._scale_x, "0.001")
 		self.bindParameter("scale_y", self._scale_y, "0.001")
 		self.bindParameter("scale_z", self._scale_z, "1.0")
-		self.bindParameter("camera_offset_x", self._camera_offset_x, "0.072")
+		self.bindParameter("camera_offset_x", self._camera_offset_x, "-0.056")
 		self.bindParameter("camera_offset_y", self._camera_offset_y, "-0.047")
-		self.bindParameter("camera_offset_z", self._camera_offset_z, "0.056")
+		self.bindParameter("camera_offset_z", self._camera_offset_z, "0.072")
 		
 		# Set InPort buffers
 		self.addInPort("image",self._imageIn)
@@ -250,7 +250,15 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 	def onActivated(self, ec_id):
 		
 		self._detectObjProvider.setComp(self)
-	
+		
+		scale_x=self._scale_x[0]
+		scale_y=self._scale_y[0]
+		scale_z=self._scale_z[0]
+		ofs_x=self._camera_offset_x[0]
+		ofs_y=self._camera_offset_y[0]
+		ofs_z=self._camera_offset_z[0]
+		self._detectObjProvider.setConfigParams(scale_x, scale_y, scale_z, ofs_x, ofs_y, ofs_z)
+		
 		return RTC.RTC_OK
 	
 		##
@@ -278,15 +286,20 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 		#
 		#
 	def onExecute(self, ec_id):
-		
+		try:
+			frame = self._ManipMiddle._ptr().getFeedbackPosCartesian()[1].carPos
+			self._detectObjProvider.setBaseFrame(frame)
+ 		
+		except Exception as e:
+			print "Could not set Base Frame... "+str(e)	
 		frame = self._ManipMiddle._ptr().getFeedbackPosCartesian()[1].carPos
 		self._detectObjProvider.setBaseFrame(frame)
-		
+
 		if self._imageIn.isNew():
 			self.image_type='RTCCameraImage'
 			self._d_image = self._imageIn.read()
 			self._d_result.data=[]
- 			
+ 			self._detectObjProvider.setImageData(self._d_image)
 			#print self._d_image.height, self._d_image.width, self._d_image.bpp
  
 			#cvimage = numpy.fromstring( self._d_image.pixels, dtype=numpy.uint8 ).reshape( self._d_image.height, self._d_image.width, -1 )
@@ -297,6 +310,7 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
 			self.image_type='RGBDCameraImage'
 			self._d_RGBDimage = self._RGBDimageIn.read()
 			self._d_result.data=[]
+			self._detectObjProvider.setImageData(self._d_RGBDimage)
 			
 		return RTC.RTC_OK
 	

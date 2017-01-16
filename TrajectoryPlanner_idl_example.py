@@ -22,7 +22,7 @@ sys.path.append(".")
 import RTC
 import OpenRTM_aist
 import ExtendedDataTypes_idl
-#from ExtendedDataTypes_idl import Pose3D, Orientation3D
+# from ExtendedDataTypes_idl import Pose3D, Orientation3D
 
 import numpy as np
 import cv2
@@ -72,9 +72,9 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # print position
         avg_scope = 15
         
-        depth_around = np.array(self.RTComp._d_RGBDimage.data.depthImage.raw_data[position - avg_scope - depthimg_width:position + avg_scope + 1 - depthimg_width] + 
-                        self.RTComp._d_RGBDimage.data.depthImage.raw_data[position - avg_scope : position + avg_scope + 1] + 
-                        self.RTComp._d_RGBDimage.data.depthImage.raw_data[position - avg_scope + depthimg_width:position + avg_scope + 1 + depthimg_width])
+        depth_around = np.array(self.image_data.data.depthImage.raw_data[position - avg_scope - depthimg_width:position + avg_scope + 1 - depthimg_width] + 
+                        self.image_data.data.depthImage.raw_data[position - avg_scope : position + avg_scope + 1] + 
+                        self.image_data.data.depthImage.raw_data[position - avg_scope + depthimg_width:position + avg_scope + 1 + depthimg_width])
         if depth_around.sum() == 0:
             depth = 0
         else:
@@ -94,31 +94,24 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # mat34 = RTComp._manipMiddle._ptr().getFeedbackPosCartesian()[1].carPos  # [0] is RETURN_ID, [1] is CarPosWithElbow
         
         mat34 = self.frame
+        print "CartesianPos :"
         print np.round(mat34, 1)
         mat34 = np.array(mat34)
         mat44 = np.concatenate((mat34, [[0, 0, 0, 1]]), axis=0)
         # print np.linalg.det(mat44)
-        inv44 = np.linalg.inv(mat44)
+        # inv44 = np.linalg.inv(mat44)
         
         pos_in_img = [pos_in_img[0] - imgw * 1.0 / 2, pos_in_img[1] - imgh * 1.0 / 2, pos_in_img[2]]  # pos from center 
-        print self.RTComp._scale_y[0]
         
-        scale_x = 0.001
-        scale_y = 0.001
-        pos_from_camera = np.array([[pos_in_img[0] * scale_x,
-                                 pos_in_img[1] * scale_y,
+
+        pos_from_camera = np.array([[pos_in_img[0] * self.scale_x,
+                                 pos_in_img[1] * self.scale_y,
                                  pos_in_img[2] * 1.0, 1]]).T
         # pos_from_arm = np.array([[1, 0, 0.5, 1]]).T
-        ofs_x=-self.RTComp._camera_offset_x[0]
-        ofs_y=-self.RTComp._camera_offset_y[0]
-        ofs_z=-self.RTComp._camera_offset_z[0]
-        print ofs_x,ofs_y,ofs_z
-        ofs_x=-0.056
-        ofs_y=-0.047
-        ofs_z=0.072
-        trans_cam_arm = np.array([[0, 1, 0, -ofs_x],
-                                  [-1, 0, 0, -ofs_y],
-                                  [0, 0, 1, -ofs_z],
+        
+        trans_cam_arm = np.array([[0, 1, 0, -self.ofs_x],
+                                  [-1, 0, 0, -self.ofs_y],
+                                  [0, 0, 1, -self.ofs_z],
                                   [0, 0, 0, 1]])
         pos_from_arm = np.dot(trans_cam_arm, pos_from_camera)
 
@@ -139,26 +132,33 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # Must return: objInfo
         # print 'objectID:' + objectID.name
         self.objInfo.objectID = objectID.name
-        self.objInfo = Manipulation.ObjectInfo(Manipulation.ObjectIdentifier(objectID.name),RTC.Pose3D(RTC.Point3D(0.0,0.0,0.0), RTC.Orientation3D(0.0,0.0,0.0)))
-        print self.objInfo
+        # self.objInfo = Manipulation.ObjectInfo(Manipulation.ObjectIdentifier(objectID.name),RTC.Pose3D(RTC.Point3D(0.0,0.0,0.0), RTC.Orientation3D(0.0,0.0,0.0)))
+        # print self.objInfo
         
         if self.RTComp.image_type == 'RTCCameraImage':
             print 'format: ' + self.RTComp._d_image.format
-            cvimage = np.fromstring(self.RTComp._d_image.pixels, dtype=np.uint8).reshape(self.RTComp._d_image.height, self.RTComp._d_image.width, -1)
+            cvimage = np.fromstring(self.image_data.pixels, dtype=np.uint8).reshape(self.image_data.height, self.image_data.width, -1)
         
         elif self.RTComp.image_type == 'RGBDCameraImage':
-            imgw = self.RTComp._d_RGBDimage.data.cameraImage.image.width
-            imgh = self.RTComp._d_RGBDimage.data.cameraImage.image.height
-            imgformat = self.RTComp._d_RGBDimage.data.cameraImage.image.format
-            dimgw = self.RTComp._d_RGBDimage.data.depthImage.width
-            dimgh = self.RTComp._d_RGBDimage.data.depthImage.height   
-
+#             imgw = self.RTComp._d_RGBDimage.data.cameraImage.image.width
+#             imgh = self.RTComp._d_RGBDimage.data.cameraImage.image.height
+#             imgformat = self.RTComp._d_RGBDimage.data.cameraImage.image.format
+#             dimgw = self.RTComp._d_RGBDimage.data.depthImage.width
+#             dimgh = self.RTComp._d_RGBDimage.data.depthImage.height   
+            imgw = self.image_data.data.cameraImage.image.width
+            imgh = self.image_data.data.cameraImage.image.height
+            imgformat = self.image_data.data.cameraImage.image.format
+            dimgw = self.image_data.data.depthImage.width
+            dimgh = self.image_data.data.depthImage.height   
+            
             print 'Color Format: ' + str(imgformat)
             
             if str(imgformat) == 'CF_RGB':
-                cvimage = np.fromstring(self.RTComp._d_RGBDimage.data.cameraImage.image.raw_data, dtype=np.uint8).reshape(imgh, imgw, -1)
+                cvimage = np.fromstring(self.image_data.data.cameraImage.image.raw_data, dtype=np.uint8).reshape(imgh, imgw, -1)
+                print "Start Detection..."
             else:
                 print "Error: only CF_RGB is available."
+        print '-----------------------------------------------------------------------------'
             
         yolo.detect_from_cvmat(cvimage)
 
@@ -179,7 +179,7 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             y = target_pos[1, 0]
             z = target_pos[2, 0]
             
-            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ', [x,y,z,w,h (mm)]=[' + str(int(x*1000)) + ',' + str(int(y*1000)) + ',' + str(int(z*1000)) + \
+            print '    ID' + str(i) + ': ' + yolo.result[i][0] + ', [x,y,z,w,h (mm)]=[' + str(int(x * 1000)) + ',' + str(int(y * 1000)) + ',' + str(int(z * 1000)) + \
                  ',' + str(int(w)) + ',' + str(int(h)) + '], Confidence = ' + str(('%03.3f' % yolo.result[i][5]))
             
             self.RTComp._d_result.data.append(str(yolo.result[i][0]))            
@@ -190,20 +190,19 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
                 
                 self.objInfo.pose = RTC.Pose3D(RTC.Point3D(x, y, z), RTC.Orientation3D(0, 0, 0))
                 
-                print 'Picking Object: ' + str(self.objInfo.objectID.name)
-                
-                print 
-                print 'Picking Object is... '
-                print self.objInfo
-                print '-----------------------------------------------------------------------------'
+                print '\n'+'Picking Object is... '
+                print '    ID = ' + str(self.objInfo.objectID)
+                print '    ' + str(self.objInfo.pose)
+                print '-----------------------------------------------------------------------------' + '\n'
                 break                   
-
-
+            
             else:
-                print 'No Matched Object.'
-                print '-----------------------------------------------------------------------------'
+                print '\n'+'No Matched Object.'
+                print '-----------------------------------------------------------------------------' + '\n'
+            
+                 
 
-        result = Manipulation.ReturnValue(Manipulation.OK,"Detected")
+        result = Manipulation.ReturnValue(Manipulation.OK, "Detected")
         return (result, self.objInfo)
             
 
@@ -214,20 +213,22 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         # Must return: result
         self.frame = frame
         # print np.round(self.frame, 1)
-        result = (0, "set Base Frame")
+        result = Manipulation.ReturnValue(Manipulation.OK, "Set Base Frame")
         return result
 
-    def setImageData(self, image):
-        self.image=image
+    def setImageData(self, image_data):
+        self.image_data = image_data
         
     def setConfigParams(self, scale_x, scale_y, scale_z, ofs_x, ofs_y, ofs_z):
-        self.camera_image=camera_image
-        self.scale_x=scale_x
-        self.scale_y=scale_y
-        self.scale_z=scale_z
-        self.ofs_x=ofs_x
-        self.ofs_y=ofs_y
-        self.ofs_z=ofs_z
+        self.scale_x = scale_x
+        self.scale_y = scale_y
+        self.scale_z = scale_z
+        self.ofs_x = ofs_x
+        self.ofs_y = ofs_y
+        self.ofs_z = ofs_z
+        print "config parameters:"
+        print scale_x, scale_y, scale_z, ofs_x, ofs_y, ofs_z
+        print
 
 # class ObjectHandleStrategyService_i (Manipulation__POA.ObjectHandleStrategyService):
 #     """
