@@ -292,8 +292,6 @@ class ObjectDetector_YOLOtf(OpenRTM_aist.DataFlowComponentBase):
  		
 		except Exception as e:
 			print "Could not set Base Frame... "+str(e)	
-		frame = self._ManipMiddle._ptr().getFeedbackPosCartesian()[1].carPos
-		self._detectObjProvider.setBaseFrame(frame)
 
 		if self._imageIn.isNew():
 			self.image_type='RTCCameraImage'
