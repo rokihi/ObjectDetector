@@ -51,10 +51,11 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         self.objectID = ''
         self.pose = (0, 0, 0, 0, 0, 0)
         self.objInfo = Manipulation.ObjectInfo(self.objectID, self.pose)
+        
         self.frame = [[]]
         
         yolo.disp_console = True
-        yolo.imshow = True
+        yolo.imshow = False
         yolo.tofile_img = "RTC_result_img.jpg"
         yolo.tofile_txt = "RTC_result_txt.txt"
         yolo.filewrite_img = True
@@ -65,28 +66,31 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
     def getDepth(self, x, y, cameraimg_width, depthimg_width):
         min_distance = 0.2
         max_distance = 2.0
-        
-        ratio = depthimg_width * 1.0 / cameraimg_width
-        
-        position = int(x * ratio) * depthimg_width + int(y * ratio)  # target position in depth image
-        # print position
         avg_scope = 15
         
-        depth_around = np.array(self.image_data.data.depthImage.raw_data[position - avg_scope - depthimg_width:position + avg_scope + 1 - depthimg_width] + 
-                        self.image_data.data.depthImage.raw_data[position - avg_scope : position + avg_scope + 1] + 
-                        self.image_data.data.depthImage.raw_data[position - avg_scope + depthimg_width:position + avg_scope + 1 + depthimg_width])
-        if depth_around.sum() == 0:
-            depth = 0
-        else:
-            depth = depth_around.sum() / np.nonzero(depth_around)[0].size  # average without 0 
-            
-        # print depth_around
+        ratio = depthimg_width * 1.0 / cameraimg_width
+        position = int(x * ratio) * depthimg_width + int(y * ratio)  # target position in depth image
+        # print position
+        
+        print "depth:"
+
+        if x<avg_scope or x>depthimg_width-avg_scope or y<avg_scope or y > self.image_data.data.depthImage.height-avg_scope:
+		depth = self.image_data.data.depthImage.raw_data[position]
+        else:    
+            depth_around = np.array(self.image_data.data.depthImage.raw_data[position - avg_scope - depthimg_width:position + avg_scope + 1 - depthimg_width] + 
+                            self.image_data.data.depthImage.raw_data[position - avg_scope : position + avg_scope + 1] + 
+                            self.image_data.data.depthImage.raw_data[position - avg_scope + depthimg_width:position + avg_scope + 1 + depthimg_width])
+            print depth_around
+#         if depth_around.sum() == 0:
+#             depth = 0
+#         else:
+            depth = depth_around.sum() / np.nonzero(depth_around)[0].size  # average without 0
         
         if depth < min_distance:
             depth = min_distance
         elif depth > max_distance:
             depth = max_distance
-        
+        print depth
         return depth  # * 1000 # [mm]
     
     
@@ -97,6 +101,10 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
         print "CartesianPos :"
         print np.round(mat34, 1)
         mat34 = np.array(mat34)
+        for i in range(3):
+            mat34[i,3]=mat34[i,3]*0.001
+
+        print np.round(mat34, 1)
         mat44 = np.concatenate((mat34, [[0, 0, 0, 1]]), axis=0)
         # print np.linalg.det(mat44)
         # inv44 = np.linalg.inv(mat44)
@@ -188,7 +196,8 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
             
             if yolo.result[i][0] == objectID.name:
                 
-                self.objInfo.pose = RTC.Pose3D(RTC.Point3D(x, y, z), RTC.Orientation3D(0, 0, 0))
+                
+                self.objInfo = Manipulation.ObjectInfo(Manipulation.ObjectIdentifier(self.objInfo.objectID),RTC.Pose3D(RTC.Point3D(x,y-0.1,z+0.1), RTC.Orientation3D(0,0,0)))
                 
                 print '\n'+'Picking Object is... '
                 print '    ID = ' + str(self.objInfo.objectID)
@@ -201,7 +210,6 @@ class ObjectDetectionService_i (Manipulation__POA.ObjectDetectionService):
                 print '-----------------------------------------------------------------------------' + '\n'
             
                  
-
         result = Manipulation.ReturnValue(Manipulation.OK, "Detected")
         return (result, self.objInfo)
             
